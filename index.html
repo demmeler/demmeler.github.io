@@ -1,0 +1,28 @@
+<html>
+
+<header>
+   <title>
+      Covplot
+   </title>
+   <!-- plotly.com -->
+   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+   <!-- http://datamaps.github.io/ -->
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.3/d3.min.js"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/1.6.9/topojson.min.js"></script>
+   <script src="datamaps.world.min.js"></script>
+
+   <script src="plot.js"></script>
+   <script>
+      function init() {
+         covplot();
+      }
+   </script>
+</header>
+
+<body style="height:100%">
+   <div id="plotdiv" style="height: 50%"></div>
+   <div id="map" style="height: 60%; width: 90%; position: relative"></div>
+   <script>init();</script>
+</body>
+
+</html>
