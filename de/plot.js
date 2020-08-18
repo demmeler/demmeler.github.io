@@ -4,13 +4,12 @@
 var rkicsv = "https://opendata.arcgis.com/datasets/dd4580c810204019a7b8eb3e0b329dd6_0.csv";
 var countriescsv = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/UID_ISO_FIPS_LookUp_Table.csv";
 var kreisecsv = "https://raw.githubusercontent.com/demmeler/demmeler.github.io/master/de/landkreise.csv";
-var germanymapurl = "https://raw.githubusercontent.com/AliceWi/TopoJSON-Germany/master/germany.json";
+///var germanymapurl = "https://raw.githubusercontent.com/AliceWi/TopoJSON-Germany/master/germany.json";
+var germanymapurl = "https://raw.githubusercontent.com/demmeler/demmeler.github.io/master/de/topology.json";
 
 function covplot() {
    Plotly.d3.csv(rkicsv, function (data) {
       Plotly.d3.csv(kreisecsv, function (kreise) {
-         console.log('Loaded');
-
          var populationData = getPopulationData(kreise);
          var incidenceData = getIncidenceData(data, populationData);
          incidencePlot(incidenceData, true);
@@ -26,7 +25,7 @@ function incidencePlot(incidenceData, prognose) {
    Object.keys(incidenceData).forEach(region => {
       var dataRow = incidenceData[region];
 
-      var incidences = dataRow.trace.newcases_weekly;
+      var incidences = dataRow.trace.incidence;
 
       var max = Math.max(...incidences);
       if (max > globalmax) {
@@ -55,14 +54,14 @@ function incidencePlot(incidenceData, prognose) {
       }
 
       var days = dataRow.trace.times;
-      var newcases = dataRow.trace.newcases_weekly;
+      var newcases = dataRow.trace.incidence;
       var end = newcases.length - 1;
       var max = Math.max(...newcases);
 
       if (max > 0) {
          traces.push({
             name: dataRow.Name,
-            region: region,
+            region: region2str(region),
             x: days,
             y: newcases,
             mode: 'lines',
@@ -74,12 +73,12 @@ function incidencePlot(incidenceData, prognose) {
 
          trace1 = traces.length - 1;
 
-         mapdata[region] = {
+         mapdata[region2str(region)] = {
             color: paletteScale(newcases[end]),
             cases: newcases[end],
             traces: [{ trace1: trace1 }]
          };
-         mapcolors[region] = mapdata[region].color;
+         mapcolors[region2str(region)] = mapdata[region2str(region)].color;
       }
    });
 
@@ -167,6 +166,7 @@ function incidencePlot(incidenceData, prognose) {
                }
             )
          });
+         worldmap.updateChoropleth(mapcolors);
       },
       geographyConfig: {
          dataUrl: germanymapurl,
@@ -182,8 +182,6 @@ function incidencePlot(incidenceData, prognose) {
          }
       }
    });
-
-   worldmap.updateChoropleth(mapcolors);
 };
 
 function plothover(gd, region, worldmap, activetraces) {
@@ -326,3 +324,11 @@ function getPopulationData(kreise) {
 
 // #######################################################################################
 // Utility
+
+function region2str(region) {
+   return "r_" + region;
+}
+
+function str2region(str) {
+   return str.substring(2);
+}
