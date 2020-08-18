@@ -4,6 +4,7 @@
 var rkicsv = "https://opendata.arcgis.com/datasets/dd4580c810204019a7b8eb3e0b329dd6_0.csv";
 var countriescsv = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/UID_ISO_FIPS_LookUp_Table.csv";
 var kreisecsv = "https://raw.githubusercontent.com/demmeler/demmeler.github.io/master/de/landkreise.csv";
+var germanymapurl = "https://raw.githubusercontent.com/AliceWi/TopoJSON-Germany/master/germany.json";
 
 function covplot() {
    Plotly.d3.csv(rkicsv, function (data) {
@@ -17,37 +18,75 @@ function covplot() {
    });
 }
 
+
 function incidencePlot(incidenceData, prognose) {
-   var regions = [
-      '097'
-   ];
+   var globalmax = 0;
+   var globalendmax = 0;
+
+   Object.keys(incidenceData).forEach(region => {
+      var dataRow = incidenceData[region];
+
+      var incidences = dataRow.trace.newcases_weekly;
+
+      var max = Math.max(...incidences);
+      if (max > globalmax) {
+         globalmax = max;
+      }
+
+      var endval = incidences[incidences.length - 1];
+      if (endval > globalendmax) {
+         globalendmax = endval
+      }
+   });
 
    var traces = [];
+   var mapcolors = {};
+   var mapdata = {};
 
-   Object.keys(incidenceData).forEach(key => {
-      var hit = false;
-      regions.forEach(region => {
-         if (key.indexOf(region) == 0) {
-            hit = true;
-         }
-      });
-      if (hit) {
+   var paletteScale = d3.scale.linear()
+      .domain([0, 100])
+      .range(['green', 'red']);
+
+   Object.keys(incidenceData).forEach(region => {
+      var dataRow = incidenceData[region];
+
+      if (!dataRow.incidence_available) {
+         return;
+      }
+
+      var days = dataRow.trace.times;
+      var newcases = dataRow.trace.newcases_weekly;
+      var end = newcases.length - 1;
+      var max = Math.max(...newcases);
+
+      if (max > 0) {
          traces.push({
-            name: incidenceData[key].Name,
-            x: incidenceData[key].trace.times,
-            y: incidenceData[key].trace.incidence,
+            name: dataRow.Name,
+            region: region,
+            x: days,
+            y: newcases,
             mode: 'lines',
             line: {
                width: 1
-            }
+            },
+            active: false
          });
+
+         trace1 = traces.length - 1;
+
+         mapdata[region] = {
+            color: paletteScale(newcases[end]),
+            cases: newcases[end],
+            traces: [{ trace1: trace1 }]
+         };
+         mapcolors[region] = mapdata[region].color;
       }
    });
 
    plotDiv = document.getElementById("plotdiv");
 
    var layout = {
-      title: 'Covid-19 dashboard',
+      title: 'Covid-19 incidence dashboard',
       xaxis: {
          title: 'Days',
          showgrid: false,
@@ -74,45 +113,111 @@ function incidencePlot(incidenceData, prognose) {
       showlegend: true
    };
 
-   Plotly.newPlot(plotDiv, traces, layout).then(
-      gd => {
-         gd.on('plotly_hover', function (data) {
-            var k = data.points[0].curveNumber;
+   var activetraces = [];
+   var globalgd;
 
-            // Highlight trace
-            var minop = 0.2;
-            var update = {
-               'line.width': gd.data.map((_, i) => (i == k) ? 1.5 : 1),
-               'opacity': gd.data.map((_, i) => (i == k) ? 1 : minop)
-            };
-            Plotly.restyle(gd, update);
+   Plotly.newPlot(plotDiv, activetraces, layout);
 
-         });
-      }
-   );
-
-   var map = new Datamap({
-      scope: 'counties',
+   var worldmap = new Datamap({
       element: document.getElementById('map'),
-      projection: '',
-      geographyConfig: {
-         dataUrl: 'https://raw.githubusercontent.com/AliceWi/TopoJSON-Germany/master/germany.json'
-      },
+      scope: 'counties',
       fills: {
          defaultFill: '#ABDDA4' //the keys in this object map to the "fillKey" of [data] or [bubbles]
       },
+      projection: '',
       setProjection: function (element) {
          var projection = d3.geo.equirectangular()
             .center([15, 48])
             //.rotate([4, 0])
             .scale(2000)
-            //.translate([element.offsetWidth / 2, element.offsetHeight / 2]);
-         var path = d3.geo.path()
-            .projection(projection);
+         //.translate([element.offsetWidth / 2, element.offsetHeight / 2]);
+         var path = d3.geo.path().projection(projection);
 
          return { path: path, projection: projection };
+      },
+      data: mapdata,
+      done: function (datamap) {
+         datamap.svg.selectAll('.datamaps-subunit').on('click', function (geo) {
+            if (false == worldmap.options.data.hasOwnProperty(geo.id)) {
+               return;
+            }
+
+            var data = worldmap.options.data[geo.id];
+            data.traces.forEach(t => {
+               var active = traces[t.trace1].active;
+               traces[t.trace1].active = active ? false : true;
+            });
+
+            activetraces = [];
+            traces.forEach(trace => {
+               if (trace.active) {
+                  activetraces.push(trace);
+               }
+            });
+
+            Plotly.newPlot(plotDiv, activetraces, layout).then(
+               gd => {
+                  globalgd = gd;
+                  gd.on('plotly_hover', function (data) {
+                     var k = data.points[0].curveNumber;
+                     var region = gd.data[k].region;
+                     plothover(gd, region, worldmap, activetraces);
+                  })
+                  plothover(gd, geo.id, worldmap, activetraces);
+               }
+            )
+         });
+      },
+      geographyConfig: {
+         dataUrl: germanymapurl,
+         highlightOnHover: false,
+         popupOnHover: true,
+         popupTemplate: function (geo, data) {
+            if (true == worldmap.options.data.hasOwnProperty(geo.id)) {
+               plothover(globalgd, geo.id, worldmap, activetraces);
+            }
+            return ['<div class="hoverinfo"><strong>',
+               geo.properties.name,
+               '</strong></div>'].join('');
+         }
       }
    });
+
+   worldmap.updateChoropleth(mapcolors);
+};
+
+function plothover(gd, region, worldmap, activetraces) {
+   // Flash country on map
+   var geoupdate = {};
+
+   for (var key in worldmap.options.data) {
+      if (worldmap.options.data.hasOwnProperty(key)) {
+         geoupdate[key] = worldmap.options.data[key].color;
+      }
+   }
+
+   activetraces.forEach(function (trace) {
+      geoupdate[trace.region] = 'blue';
+   });
+
+   var flashing = false;
+   if (geoupdate[region] == 'blue') {
+      geoupdate[region] = 'yellow';
+      flashing = true;
+   }
+
+   worldmap.updateChoropleth(geoupdate);
+
+   // Highlight trace
+   var minop = 0.8;
+   if (flashing) {
+      minop = 0.2;
+   }
+   var update = {
+      'line.width': gd.data.map((_, i) => (gd.data[i].region == region) ? 1.5 : 1),
+      'opacity': gd.data.map((_, i) => (gd.data[i].region == region) ? 1 : minop)
+   };
+   Plotly.restyle(gd, update);
 }
 
 function getIncidenceData(data, population) {
@@ -221,7 +326,3 @@ function getPopulationData(kreise) {
 
 // #######################################################################################
 // Utility
-
-function fiter() {
-
-}
