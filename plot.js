@@ -157,11 +157,12 @@ function incidencePlot(incidenceData, prognose) {
          var entry = mapdata[dataRow.country.iso3];
          entry.color = paletteScale(Math.max(entry.cases, newcases[end]));
          entry.cases = newcases[end];
+         var t = prognose ? {trace1: trace1, trace2: trace2} : {trace1: trace1};
          if (typeof(entry.traces) == "undefined") {
-            entry.traces = [{ trace1, trace2 }];
+            entry.traces = [t];
          }
          else {
-            entry.traces.push({ trace1, trace2 });
+            entry.traces.push(t);
          }
          mapcolors[dataRow.country.iso3] = entry.color;
       }
@@ -170,7 +171,7 @@ function incidencePlot(incidenceData, prognose) {
    plotDiv = document.getElementById("plotdiv");
 
    var layout = {
-      title: 'Incidence',
+      title: 'Covid-19 incidence dashboard',
       xaxis: {
          title: 'Days',
          showgrid: false,
