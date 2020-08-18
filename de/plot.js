@@ -9,6 +9,7 @@ function covplot() {
    Plotly.d3.csv(rkicsv, function (data) {
       Plotly.d3.csv(kreisecsv, function (kreise) {
          console.log('Loaded');
+
          var populationData = getPopulationData(kreise);
          var incidenceData = getIncidenceData(data, populationData);
          incidencePlot(incidenceData, true);
@@ -89,6 +90,29 @@ function incidencePlot(incidenceData, prognose) {
          });
       }
    );
+
+   var map = new Datamap({
+      scope: 'counties',
+      element: document.getElementById('map'),
+      projection: '',
+      geographyConfig: {
+         dataUrl: 'https://raw.githubusercontent.com/AliceWi/TopoJSON-Germany/master/germany.json'
+      },
+      fills: {
+         defaultFill: '#ABDDA4' //the keys in this object map to the "fillKey" of [data] or [bubbles]
+      },
+      setProjection: function (element) {
+         var projection = d3.geo.equirectangular()
+            .center([15, 48])
+            //.rotate([4, 0])
+            .scale(2000)
+            //.translate([element.offsetWidth / 2, element.offsetHeight / 2]);
+         var path = d3.geo.path()
+            .projection(projection);
+
+         return { path: path, projection: projection };
+      }
+   });
 }
 
 function getIncidenceData(data, population) {
