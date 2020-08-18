@@ -1,0 +1,27 @@
+<html>
+
+<header>
+   <title>
+      Covplot
+   </title>
+   <!-- plotly.com -->
+   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+   <!-- ... -->
+   <script src="moment.js"></script>
+   <script src='https://cdn.jsdelivr.net/lodash/4.17.2/lodash.min.js'></script>
+   <!-- own -->
+   <script src="plot.js"></script>
+   <script>
+      function init() {
+         covplot();
+      }
+   </script>
+</header>
+
+<body style="height:100%">
+   <div id="plotdiv" style="height: 50%"></div>
+   <div id="map" style="height: 60%; width: 90%; position: relative"></div>
+   <script>init();</script>
+</body>
+
+</html>
