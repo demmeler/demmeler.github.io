@@ -11,7 +11,6 @@ function covplot() {
          console.log('Loaded');
          var populationData = getPopulationData(kreise);
          var incidenceData = getIncidenceData(data, populationData);
-         console.log(incidenceData);
          incidencePlot(incidenceData, true);
       })
    });
@@ -19,20 +18,23 @@ function covplot() {
 
 function incidencePlot(incidenceData, prognose) {
    var regions = [
-      '09761'
+      '097'
    ];
 
    var traces = [];
 
-   regions.forEach(region => {
-      if (typeof (incidenceData[region]) == "undefined") {
-         console.log(region + " not available");
-      }
-      else {
+   Object.keys(incidenceData).forEach(key => {
+      var hit = false;
+      regions.forEach(region => {
+         if (key.indexOf(region) == 0) {
+            hit = true;
+         }
+      });
+      if (hit) {
          traces.push({
-            name: incidenceData[region].Name,
-            x: incidenceData[region].trace.times,
-            y: incidenceData[region].trace.incidence,
+            name: incidenceData[key].Name,
+            x: incidenceData[key].trace.times,
+            y: incidenceData[key].trace.incidence,
             mode: 'lines',
             line: {
                width: 1
@@ -40,8 +42,6 @@ function incidencePlot(incidenceData, prognose) {
          });
       }
    });
-
-   console.log(traces);
 
    plotDiv = document.getElementById("plotdiv");
 
@@ -54,7 +54,6 @@ function incidencePlot(incidenceData, prognose) {
       },
       yaxis: {
          title: 'Weekly new cases per 100k',
-         //type: 'log',
          showline: false
       },
       hovermode: 'closest',
@@ -80,7 +79,7 @@ function incidencePlot(incidenceData, prognose) {
             var k = data.points[0].curveNumber;
 
             // Highlight trace
-            var minop = 0.8;
+            var minop = 0.2;
             var update = {
                'line.width': gd.data.map((_, i) => (i == k) ? 1.5 : 1),
                'opacity': gd.data.map((_, i) => (i == k) ? 1 : minop)
@@ -112,7 +111,7 @@ function getIncidenceData(data, population) {
 
    Object.keys(grouped).forEach(function (key) {
       incidenceData[key] = {
-         Landkreis: key,
+         IdLandkreis: key,
          Name: grouped[key][0].Landkreis,
          group: grouped[key],
          newcases: {},
@@ -141,7 +140,7 @@ function getIncidenceData(data, population) {
 
       var pop = population[key];
       if (typeof (pop) != "undefined") {
-         incidenceData[key].incidence_available = !isNaN(pop.num);
+         incidenceData[key].incidence_available = true;
          incidenceData[key].population = pop.num;
       }
 
@@ -179,10 +178,18 @@ function getPopulationData(kreise) {
    var population = {};
 
    Object.keys(grouped).forEach(key => {
-      population[key] = { num: 0 };
+      var popentry = {
+         name: undefined,
+         num: 0
+      };
+
       grouped[key].forEach(entry => {
-         population[key].num += parseInt(entry.Insgesamt);
+         popentry.num += parseInt(entry.Insgesamt);
       });
+
+      if (!isNaN(popentry.num) && popentry.num > 0) {
+         population[key] = popentry;
+      }
    });
 
    return population;

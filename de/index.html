@@ -6,6 +6,10 @@
    </title>
    <!-- plotly.com -->
    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+   <!-- datamaps.github.io -->
+   <script src="http://d3js.org/d3.v3.min.js"></script>
+   <script src="http://d3js.org/topojson.v1.min.js"></script>
+   <script src="datamaps.world.min.js"></script>
    <!-- ... -->
    <script src="moment.js"></script>
    <script src='https://cdn.jsdelivr.net/lodash/4.17.2/lodash.min.js'></script>
@@ -21,7 +25,42 @@
 <body style="height:100%">
    <div id="plotdiv" style="height: 50%"></div>
    <div id="map" style="height: 60%; width: 90%; position: relative"></div>
-   <script>init();</script>
+   <script>
+      //init();
+
+      // Map
+      var worldmap = new Datamap({
+         element: document.getElementById('map'),
+         //data: mapdata,
+         /*done: function (datamap) {
+            datamap.svg.selectAll('.datamaps-subunit').on('click', function (geo) {
+            });
+         },*/
+         geographyConfig: {
+            /*highlightOnHover: false,
+            popupOnHover: true,
+            popupTemplate: function (geo, data) {
+
+               return ['<div class="hoverinfo"><strong>',
+                  geo.properties.name,
+                  '</strong></div>'].join('');
+            },*/
+            dataUrl: 'topology-example.json'
+            //dataUrl: 'https://raw.githubusercontent.com/AliceWi/TopoJSON-Germany/master/germany.json'
+         },
+         setProjection: function (element) {
+            var projection = d3.geo.equirectangular()
+               .center([0, 43])
+               .rotate([4.4, 0])
+               .scale(400)
+               .translate([element.offsetWidth / 2, element.offsetHeight / 2]);
+            var path = d3.geo.path()
+               .projection(projection);
+
+            return { path: path, projection: projection };
+         }
+      });
+   </script>
 </body>
 
 </html>
