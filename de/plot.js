@@ -43,7 +43,7 @@ function incidencePlot(incidenceData, prognose) {
    var mapdata = {};
 
    var paletteScale = d3.scale.linear()
-      .domain([0, 100])
+      .domain([0, 50])
       .range(['green', 'red']);
 
    Object.keys(incidenceData).forEach(region => {
@@ -126,9 +126,9 @@ function incidencePlot(incidenceData, prognose) {
       projection: '',
       setProjection: function (element) {
          var projection = d3.geo.equirectangular()
-            .center([15, 48])
+            .center([12, 52])
             //.rotate([4, 0])
-            .scale(2000)
+            .scale(3500)
          //.translate([element.offsetWidth / 2, element.offsetHeight / 2]);
          var path = d3.geo.path().projection(projection);
 
