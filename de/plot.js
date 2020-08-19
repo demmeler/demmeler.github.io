@@ -85,7 +85,7 @@ function incidencePlot(incidenceData, prognose) {
    plotDiv = document.getElementById("plotdiv");
 
    var layout = {
-      title: 'Covid-19 incidence dashboard',
+      title: 'Germany Covid-19 incidence',
       xaxis: {
          title: 'Days',
          showgrid: false,
