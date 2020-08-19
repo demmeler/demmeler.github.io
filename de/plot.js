@@ -13,10 +13,10 @@ function covplot() {
          var populationData = getPopulationData(kreise);
          var incidenceData = getIncidenceData(data, populationData);
          incidencePlot(incidenceData, true);
+         document.getElementById("loading").style.visibility = "hidden";
       })
    });
 }
-
 
 function incidencePlot(incidenceData, prognose) {
    var globalmax = 0;
