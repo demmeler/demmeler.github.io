@@ -126,10 +126,10 @@ function incidencePlot(incidenceData, prognose) {
       projection: '',
       setProjection: function (element) {
          var projection = d3.geo.equirectangular()
-            .center([12, 52])
+            .center([10.5, 50])
             //.rotate([4, 0])
-            .scale(3500)
-         //.translate([element.offsetWidth / 2, element.offsetHeight / 2]);
+            .scale(3800)
+            .translate([element.offsetWidth / 2, element.offsetHeight / 2]);
          var path = d3.geo.path().projection(projection);
 
          return { path: path, projection: projection };
@@ -166,9 +166,11 @@ function incidencePlot(incidenceData, prognose) {
                }
             )
          });
+
          worldmap.updateChoropleth(mapcolors);
       },
       geographyConfig: {
+         borderWidth: 0.5,
          dataUrl: germanymapurl,
          highlightOnHover: false,
          popupOnHover: true,
