@@ -126,7 +126,7 @@ function incidencePlot(incidenceData, prognose) {
       projection: '',
       setProjection: function (element) {
          var projection = d3.geo.equirectangular()
-            .center([10.5, 50])
+            .center([10.5, 50.5])
             //.rotate([4, 0])
             .scale(3800)
             .translate([element.offsetWidth / 2, element.offsetHeight / 2]);
