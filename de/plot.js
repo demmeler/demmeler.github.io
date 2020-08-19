@@ -11,14 +11,16 @@ function covplot() {
    Plotly.d3.csv(rkicsv, function (data) {
       Plotly.d3.csv(kreisecsv, function (kreise) {
          var populationData = getPopulationData(kreise);
-         var incidenceData = getIncidenceData(data, populationData);
-         incidencePlot(incidenceData, true);
+         var incidenceDataOutput = getIncidenceData(data, populationData);
+         incidencePlot(incidenceDataOutput, true);
          document.getElementById("loading").style.visibility = "hidden";
       })
    });
 }
 
-function incidencePlot(incidenceData, prognose) {
+function incidencePlot(incidenceDataOutput, prognose) {
+   var tnow = incidenceDataOutput.tnow;
+   var incidenceData = incidenceDataOutput.incidenceData;
    var globalmax = 0;
    var globalendmax = 0;
 
@@ -87,7 +89,7 @@ function incidencePlot(incidenceData, prognose) {
    var layout = {
       title: 'Germany Covid-19 incidence',
       xaxis: {
-         title: 'Days',
+         title: 'Days (0 = ' + tnow.format('DD.MM.YYYY') + ')',
          showgrid: false,
          zeroline: false
       },
@@ -297,7 +299,7 @@ function getIncidenceData(data, population) {
       }
    });
 
-   return incidenceData;
+   return { incidenceData: incidenceData, tnow: tnow };
 }
 
 function getPopulationData(kreise) {

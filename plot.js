@@ -151,14 +151,14 @@ function incidencePlot(incidenceData, prognose) {
             trace2 = traces.length - 1;
          }
 
-         if (typeof(mapdata[dataRow.country.iso3]) == "undefined"){
-            mapdata[dataRow.country.iso3] = {cases: 0};
+         if (typeof (mapdata[dataRow.country.iso3]) == "undefined") {
+            mapdata[dataRow.country.iso3] = { cases: 0 };
          }
          var entry = mapdata[dataRow.country.iso3];
          entry.color = paletteScale(Math.max(entry.cases, newcases[end]));
          entry.cases = newcases[end];
-         var t = prognose ? {trace1: trace1, trace2: trace2} : {trace1: trace1};
-         if (typeof(entry.traces) == "undefined") {
+         var t = prognose ? { trace1: trace1, trace2: trace2 } : { trace1: trace1 };
+         if (typeof (entry.traces) == "undefined") {
             entry.traces = [t];
          }
          else {
@@ -173,7 +173,7 @@ function incidencePlot(incidenceData, prognose) {
    var layout = {
       title: 'Covid-19 incidence dashboard',
       xaxis: {
-         title: 'Days',
+         title: 'Days (0 = ' + dateFormat(0) + ')',
          showgrid: false,
          zeroline: false
       },
@@ -298,6 +298,13 @@ function plothover(gd, iso3, worldmap, activetraces) {
 function date(i) {
    var date = new Date(new Date().setDate(new Date().getDate() - 1 + i));
    var dateString = (date.getMonth() + 1) + "/" + date.getDate() + "/" + (date.getFullYear() - 2000);
+
+   return dateString;
+}
+
+function dateFormat(i) {
+   var date = new Date(new Date().setDate(new Date().getDate() - 1 + i));
+   var dateString = date.getDate() + "." + (date.getMonth() + 1) + "." + date.getFullYear();
 
    return dateString;
 }
