@@ -242,6 +242,7 @@ function incidencePlot(incidenceData, prognose) {
          });
 
          document.getElementById("resetbutton").onclick = function(evt) {
+            console.log('reset');
             Object.keys(worldmap.options.data).forEach(key => {
                worldmap.options.data[key].traces.forEach(t => {
                   traces[t.trace1].active = false;
