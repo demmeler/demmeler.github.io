@@ -14,6 +14,7 @@ function covplot() {
          var incidenceDataOutput = getIncidenceData(data, populationData);
          incidencePlot(incidenceDataOutput, true);
          document.getElementById("loading").style.visibility = "hidden";
+         document.getElementById("resetbutton").style.visibility = "visible";
       })
    });
 }
@@ -169,6 +170,34 @@ function incidencePlot(incidenceDataOutput, prognose) {
             )
          });
 
+         document.getElementById("resetbutton").onclick = function (evt) {
+            console.log(worldmap);
+            Object.keys(worldmap.options.data).forEach(key => {
+               worldmap.options.data[key].traces.forEach(t => {
+                  traces[t.trace1].active = false;
+               });
+            });
+
+            activetraces = [];
+            traces.forEach(trace => {
+               if (trace.active) {
+                  activetraces.push(trace);
+               }
+            });
+
+            Plotly.newPlot(plotDiv, activetraces, layout).then(
+               gd => {
+                  globalgd = gd;
+                  gd.on('plotly_hover', function (data) {
+                     var k = data.points[0].curveNumber;
+                     var region = gd.data[k].region;
+                     plothover(gd, region, worldmap, activetraces);
+                  })
+                  plothover(gd, null, worldmap, activetraces);
+               }
+            )
+         };
+
          worldmap.updateChoropleth(mapcolors);
       },
       geographyConfig: {
@@ -203,9 +232,11 @@ function plothover(gd, region, worldmap, activetraces) {
    });
 
    var flashing = false;
-   if (geoupdate[region] == 'blue') {
-      geoupdate[region] = 'yellow';
-      flashing = true;
+   if (region != null) {
+      if (geoupdate[region] == 'blue') {
+         geoupdate[region] = 'yellow';
+         flashing = true;
+      }
    }
 
    worldmap.updateChoropleth(geoupdate);
@@ -234,6 +265,9 @@ function getIncidenceData(data, population) {
       tmin = (t < tmin) ? t : tmin;
       tmax = (t > tmax) ? t : tmax;
    }
+
+   console.log(tmin);
+   console.log(tmax);
 
    var grouped = _.mapValues(_.groupBy(data, 'IdLandkreis'),
       clist => clist.map(d => _.omit(d, 'IdLandkreis')));

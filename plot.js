@@ -240,8 +240,39 @@ function incidencePlot(incidenceData, prognose) {
                }
             )
          });
+
+         document.getElementById("resetbutton").onclick = function(evt) {
+            Object.keys(worldmap.options.data).forEach(key => {
+               worldmap.options.data[key].traces.forEach(t => {
+                  traces[t.trace1].active = false;
+                  if (prognose) {
+                     traces[t.trace2].active = false;
+                  }
+               });
+            });
+
+            activetraces = [];
+            traces.forEach(function (trace) {
+               if (trace.active) {
+                  activetraces.push(trace);
+               }
+            });
+
+            Plotly.newPlot(plotDiv, activetraces, layout).then(
+               gd => {
+                  globalgd = gd;
+                  gd.on('plotly_hover', function (data) {
+                     var k = data.points[0].curveNumber;
+                     var iso3 = gd.data[k].country.iso3;
+                     plothover(gd, iso3, worldmap, activetraces);
+                  })
+                  plothover(gd, null, worldmap, activetraces);
+               }
+            )
+         };
       },
       geographyConfig: {
+         borderWidth: 0.5,
          highlightOnHover: false,
          popupOnHover: true,
          popupTemplate: function (geo, data) {
@@ -273,9 +304,11 @@ function plothover(gd, iso3, worldmap, activetraces) {
    });
 
    var flashing = false;
-   if (geoupdate[iso3] == 'blue') {
-      geoupdate[iso3] = 'yellow';
-      flashing = true;
+   if (iso3 != null) {
+      if (geoupdate[iso3] == 'blue') {
+         geoupdate[iso3] = 'yellow';
+         flashing = true;
+      }
    }
 
    worldmap.updateChoropleth(geoupdate);
