@@ -273,7 +273,6 @@ function incidencePlot(incidenceData, prognose) {
       },
       geographyConfig: {
          borderWidth: 0.5,
-
          highlightOnHover: false,
          popupOnHover: true,
          popupTemplate: function (geo, data) {
