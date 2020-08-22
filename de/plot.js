@@ -3,15 +3,21 @@
 
 var rkicsv = "https://opendata.arcgis.com/datasets/dd4580c810204019a7b8eb3e0b329dd6_0.csv";
 var countriescsv = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/UID_ISO_FIPS_LookUp_Table.csv";
-var kreisecsv = "https://raw.githubusercontent.com/demmeler/demmeler.github.io/master/de/landkreise.csv";
+var kreisecsv = "https://raw.githubusercontent.com/demmeler/demmeler.github.io/master/de/kreise.csv";
 ///var germanymapurl = "https://raw.githubusercontent.com/AliceWi/TopoJSON-Germany/master/germany.json";
 var germanymapurl = "https://raw.githubusercontent.com/demmeler/demmeler.github.io/master/de/topology.json";
 
 function covplot() {
    Plotly.d3.csv(rkicsv, function (data) {
       Plotly.d3.csv(kreisecsv, function (kreise) {
+         // filter spaces
+         kreise.forEach(entry => {
+            entry.Insgesamt = entry.Insgesamt.replace(/\s/g, '');
+         });
+         console.log(kreise);
          var populationData = getPopulationData(kreise);
          var incidenceDataOutput = getIncidenceData(data, populationData);
+         console.log(incidenceDataOutput);
          incidencePlot(incidenceDataOutput, true);
          document.getElementById("loading").style.visibility = "hidden";
          document.getElementById("resetbutton").style.visibility = "visible";
