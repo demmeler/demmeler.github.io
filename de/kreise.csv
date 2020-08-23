@@ -324,6 +324,18 @@ Nummer,Art,Name,NUTS3,Flaeche_km2,Insgesamt,maennlich,weiblich,Einwohner_pro_km2
 10045,Landkreis,Saarpfalz-Kreis,DEC05,418.28,142 631,69 385,73 246,341
 10046,Landkreis,St. Wendel,DEC06,476.07,87 397,43 198,44 199,184
 11000,Kreisfreie Stadt,Berlin - Stadt,DE300,891.12,3 644 826,1 792 801,1 852 025,4 090
+11001,Stadtbezirk,Berlin - Mitte,-,-,385748,-,-,-
+11002,Stadtbezirk,Berlin - Friedrichshain-Kreuzberg,-,-,290386,-,-,-
+11003,Stadtbezirk,Berlin - Pankow,-,-,409335,-,-,-
+11004,Stadtbezirk,Berlin - Charlottenburg-Wilmersdorf,-,-,343592,-,-,-
+11005,Stadtbezirk,Berlin - Spandau,-,-,245197,-,-,-
+11006,Stadtbezirk,Berlin - Steglitz-Zehlendorf,-,-,310071,-,-,-
+11007,Stadtbezirk,Berlin - Tempelhof-Schöneberg,-,-,350984,-,-,-
+11008,Stadtbezirk,Berlin - Neukölln,-,-,329917,-,-,-
+11009,Stadtbezirk,Berlin - Treptow-Köpenick,-,-,273689,-,-,-
+11010,Stadtbezirk,Berlin - Marzahn-Hellersdorf,-,-,269967,-,-,-
+11011,Stadtbezirk,Berlin - Lichtenberg,-,-,294201,-,-,-
+11012,Stadtbezirk,Berlin - Reinickendorf,-,-,266408,-,-,-
 12051,Kreisfreie Stadt,Brandenburg an der Havel - Stadt,DE401,229.71,72 124,35 617,36 507,314
 12052,Kreisfreie Stadt,Cottbus - Stadt,DE402,165.63,100 219,49 201,51 018,605
 12053,Kreisfreie Stadt,Frankfurt (Oder) - Stadt,DE403,147.85,57 873,28 023,29 850,391
