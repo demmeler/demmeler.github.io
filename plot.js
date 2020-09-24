@@ -27,7 +27,7 @@ function covplot() {
          ];
          var filteredData = getCountryData(countries, data, countrydata);
          var incidenceData = getIncidenceData(filteredData);
-         incidencePlot(incidenceData, true);
+         incidencePlot(incidenceData, false);
 
       })
    });
