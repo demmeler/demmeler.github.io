@@ -1,10 +1,8 @@
-// #######################################################################################
+// ###############################################################################################################
 // Main
 
 var rkicsv = "https://opendata.arcgis.com/datasets/dd4580c810204019a7b8eb3e0b329dd6_0.csv";
-var countriescsv = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/UID_ISO_FIPS_LookUp_Table.csv";
 var kreisecsv = "https://raw.githubusercontent.com/demmeler/demmeler.github.io/master/de/kreise.csv";
-///var germanymapurl = "https://raw.githubusercontent.com/AliceWi/TopoJSON-Germany/master/germany.json";
 var germanymapurl = "https://raw.githubusercontent.com/demmeler/demmeler.github.io/master/de/topology.json";
 
 function covplot() {
@@ -14,39 +12,24 @@ function covplot() {
          kreise.forEach(entry => {
             entry.Insgesamt = entry.Insgesamt.replace(/\s/g, '');
          });
-         console.log(kreise);
+
          var populationData = getPopulationData(kreise);
-         var incidenceDataOutput = getIncidenceData(data, populationData);
-         console.log(incidenceDataOutput);
-         incidencePlot(incidenceDataOutput, true);
+         var incidenceDataOutput = getIncidenceDataRKI(data, populationData);
+
+         incidencePlot(incidenceDataOutput);
+
          document.getElementById("loading").style.visibility = "hidden";
          document.getElementById("resetbutton").style.visibility = "visible";
       })
    });
 }
 
-function incidencePlot(incidenceDataOutput, prognose) {
-   var tnow = incidenceDataOutput.tnow;
-   var incidenceData = incidenceDataOutput.incidenceData;
-   var globalmax = 0;
-   var globalendmax = 0;
+// ###############################################################################################################
+// Plot
 
-   Object.keys(incidenceData).forEach(region => {
-      var dataRow = incidenceData[region];
-
-      var incidences = dataRow.trace.incidence;
-
-      var max = Math.max(...incidences);
-      if (max > globalmax) {
-         globalmax = max;
-      }
-
-      var endval = incidences[incidences.length - 1];
-      if (endval > globalendmax) {
-         globalendmax = endval
-      }
-   });
-
+// output: {traces, mapdata, mapcolors}
+function getPlotData(incidenceData)
+{
    var traces = [];
    var mapcolors = {};
    var mapdata = {};
@@ -91,6 +74,16 @@ function incidencePlot(incidenceDataOutput, prognose) {
       }
    });
 
+   return {traces, mapdata, mapcolors};
+}
+
+// input: incidenceDataOutput = {tnow, incidenceData}
+function incidencePlot(incidenceDataOutput) {
+   var tnow = incidenceDataOutput.tnow;
+   var plotdata = getPlotData(incidenceDataOutput.incidenceData);
+
+   var traces = plotdata.traces;
+
    plotDiv = document.getElementById("plotdiv");
 
    var layout = {
@@ -126,6 +119,8 @@ function incidencePlot(incidenceDataOutput, prognose) {
 
    Plotly.newPlot(plotDiv, activetraces, layout);
 
+   // ########################################################################
+
    var worldmap = new Datamap({
       element: document.getElementById('map'),
       scope: 'counties',
@@ -143,8 +138,26 @@ function incidencePlot(incidenceDataOutput, prognose) {
 
          return { path: path, projection: projection };
       },
-      data: mapdata,
+      geographyConfig: {
+         borderWidth: 0.5,
+         dataUrl: germanymapurl,
+         highlightOnHover: false,
+         popupOnHover: true,
+         popupTemplate: function (geo, data) {
+            if (true == worldmap.options.data.hasOwnProperty(geo.id)) {
+               plothover(globalgd, geo.id, worldmap, activetraces);
+            }
+
+            return ['<div class="hoverinfo"><strong>',
+                     geo.properties.name,
+                     '</strong></div>'].join('');
+         }
+      },
+      data: plotdata.mapdata,
+
+      // ########################################################################
       done: function (datamap) {
+         // #####################################################################
          datamap.svg.selectAll('.datamaps-subunit').on('click', function (geo) {
             if (false == worldmap.options.data.hasOwnProperty(geo.id)) {
                return;
@@ -170,12 +183,13 @@ function incidencePlot(incidenceDataOutput, prognose) {
                      var k = data.points[0].curveNumber;
                      var region = gd.data[k].region;
                      plothover(gd, region, worldmap, activetraces);
-                  })
+                  });
                   plothover(gd, geo.id, worldmap, activetraces);
                }
             )
          });
 
+         // #####################################################################
          document.getElementById("resetbutton").onclick = function (evt) {
             console.log(worldmap);
             Object.keys(worldmap.options.data).forEach(key => {
@@ -198,27 +212,14 @@ function incidencePlot(incidenceDataOutput, prognose) {
                      var k = data.points[0].curveNumber;
                      var region = gd.data[k].region;
                      plothover(gd, region, worldmap, activetraces);
-                  })
+                  });
                   plothover(gd, null, worldmap, activetraces);
                }
             )
          };
 
-         worldmap.updateChoropleth(mapcolors);
-      },
-      geographyConfig: {
-         borderWidth: 0.5,
-         dataUrl: germanymapurl,
-         highlightOnHover: false,
-         popupOnHover: true,
-         popupTemplate: function (geo, data) {
-            if (true == worldmap.options.data.hasOwnProperty(geo.id)) {
-               plothover(globalgd, geo.id, worldmap, activetraces);
-            }
-            return ['<div class="hoverinfo"><strong>',
-               geo.properties.name,
-               '</strong></div>'].join('');
-         }
+         // #####################################################################
+         worldmap.updateChoropleth(plotdata.mapcolors);
       }
    });
 };
@@ -259,7 +260,13 @@ function plothover(gd, region, worldmap, activetraces) {
    Plotly.restyle(gd, update);
 }
 
-function getIncidenceData(data, population) {
+// ###############################################################################################################
+// Incidence data generation
+
+// input:   data = [{Datenstand, Refdatum, IdLandkreis, Landkreis, AnzahlFall, ...}, ...]
+//          population[IdLandkreis] = {name, num}
+// output:  out = {incidenceData, tnow}, incidenceData -> see code
+function getIncidenceDataRKI(data, population) {
    var tnow = moment(data[0].Datenstand, "DD.MM.YYYY, hh:mm Uhr");
    var tmin = 0;
    var tmax = -1000;
@@ -284,55 +291,62 @@ function getIncidenceData(data, population) {
       incidenceData[key] = {
          IdLandkreis: key,
          Name: grouped[key][0].Landkreis,
-         group: grouped[key],
-         newcases: {},
-         sum: 0,
          trace: {
             times: [],
-            newcases: [],
-            newcases_weekly: [],
-            cases: [],
+            // debug newcases: [],
+            // debug newcases_weekly: [],
+            // debug cases: [],
             incidence: [],
          },
          incidence_available: false,
          population: undefined
       };
 
-      incidenceData[key].group.forEach(row => {
-         incidenceData[key].newcases[row.t] = { num: 0, rows: [] };
+      // newcases
+      // sum
+      var newcases = {};
+      var sum = 0;
+
+      grouped[key].forEach(row => {
+         newcases[row.t] = { num: 0, rows: [] };
       });
 
-      incidenceData[key].group.forEach(row => {
+      grouped[key].forEach(row => {
          var num = parseInt(row.AnzahlFall);
-         incidenceData[key].newcases[row.t].num += num;
-         incidenceData[key].newcases[row.t].rows.push(row);
-         incidenceData[key].sum += num;
+         newcases[row.t].num += num;
+         sum += num;
       });
 
+      // population
+      // incidence_available
       var pop = population[key];
       if (typeof (pop) != "undefined") {
          incidenceData[key].incidence_available = true;
          incidenceData[key].population = pop.num;
       }
 
+      // trace
       var c = 0;
       var c_lw = 0;
+
       for (var time = tmin; time < tmax; ++time) {
-         var entry = incidenceData[key].newcases[time];
+         // current week
+         var entry = newcases[time];
          var nc = typeof (entry) == "undefined" ? 0 : entry.num;
          c += nc;
 
-         var nc_lw = 0;
+         // last week
          if (time - 7 >= tmin) {
-            var entry_lw = incidenceData[key].newcases[time - 7];
-            nc_lw = typeof (entry_lw) == "undefined" ? 0 : entry_lw.num;
+            var entry_lw = newcases[time - 7];
+            var nc_lw = typeof (entry_lw) == "undefined" ? 0 : entry_lw.num;
             c_lw += nc_lw;
          }
 
+         // trajectories
          incidenceData[key].trace.times.push(time);
-         incidenceData[key].trace.newcases.push(nc);
-         incidenceData[key].trace.cases.push(c);
-         incidenceData[key].trace.newcases_weekly.push(c - c_lw);
+         // debug incidenceData[key].trace.newcases.push(nc);
+         // debug incidenceData[key].trace.cases.push(c);
+         // debug incidenceData[key].trace.newcases_weekly.push(c - c_lw);
          if (incidenceData[key].incidence_available) {
             incidenceData[key].trace.incidence.push((c - c_lw) * 100000.0 / pop.num);
          }
@@ -342,6 +356,8 @@ function getIncidenceData(data, population) {
    return { incidenceData: incidenceData, tnow: tnow };
 }
 
+// input:   kreise = [{Nummer, Insgesamt}, ...]
+// ouptut:  population[Nummer] = {name, num}
 function getPopulationData(kreise) {
    var grouped = _.mapValues(_.groupBy(kreise, 'Nummer'),
       clist => clist.map(d => _.omit(d, 'Nummer')));
@@ -366,13 +382,35 @@ function getPopulationData(kreise) {
    return population;
 }
 
-// #######################################################################################
+// return: {globalmax, globalendmax}
+function getGlobalmax(incidenceData)
+{
+   var globalmax = 0;
+   var globalendmax = 0;
+
+   Object.keys(incidenceData).forEach(region => {
+      var dataRow = incidenceData[region];
+
+      var incidences = dataRow.trace.incidence;
+
+      var max = Math.max(...incidences);
+      if (max > globalmax) {
+         globalmax = max;
+      }
+
+      var endval = incidences[incidences.length - 1];
+      if (endval > globalendmax) {
+         globalendmax = endval
+      }
+   });
+
+   return {globalmax, globalendmax};
+}
+
+// ###############################################################################################################
 // Utility
 
 function region2str(region) {
    return "r_" + region;
 }
 
-function str2region(str) {
-   return str.substring(2);
-}
