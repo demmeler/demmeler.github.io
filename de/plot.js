@@ -34,9 +34,6 @@ function getPlotData(incidenceData)
    var mapcolors = {};
    var mapdata = {};
 
-   var paletteScale = d3.scale.linear()
-      .domain([0, 50])
-      .range(['green', 'red']);
 
    Object.keys(incidenceData).forEach(region => {
       var dataRow = incidenceData[region];
@@ -66,7 +63,7 @@ function getPlotData(incidenceData)
          trace1 = traces.length - 1;
 
          mapdata[region2str(region)] = {
-            color: paletteScale(newcases[end]),
+            color: valToColor(newcases[end]),
             cases: newcases[end],
             traces: [{ trace1: trace1 }]
          };
@@ -234,17 +231,21 @@ function plothover(gd, region, worldmap, activetraces) {
       }
    }
 
-   activetraces.forEach(function (trace) {
-      geoupdate[trace.region] = 'blue';
-   });
-
    var flashing = false;
-   if (region != null) {
-      if (geoupdate[region] == 'blue') {
-         geoupdate[region] = 'yellow';
+
+   activetraces.forEach(function (trace) {
+      var treg = trace.region;
+      var original = geoupdate[treg];
+      if (treg == region)
+      {
+         geoupdate[region] = highlightColor(original, 'blue', 100);
          flashing = true;
       }
-   }
+      else
+      {
+         geoupdate[treg] = highlightColor(original, 'blue', 75);
+      }
+   });
 
    worldmap.updateChoropleth(geoupdate);
 
@@ -414,3 +415,31 @@ function region2str(region) {
    return "r_" + region;
 }
 
+function valToColor(val)
+{
+   var paletteScale1 = d3.scale.linear()
+      .domain([0, 25])
+      .range(['green', 'yellow']);
+
+   var paletteScale2 = d3.scale.linear()
+      .domain([25, 50])
+      .range(['yellow', 'red']);
+
+   if (val < 25)
+   {
+      return paletteScale1(val);
+   }
+   else
+   {
+      return paletteScale2(val);
+   }
+}
+
+function highlightColor(color, color2, percent)
+{
+   var paletteScale = d3.scale.linear()
+      .domain([0, 100])
+      .range([color, color2]);
+
+   return paletteScale(percent);
+}
