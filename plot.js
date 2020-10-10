@@ -90,10 +90,6 @@ function incidencePlot(incidenceData, prognose) {
    var mapcolors = {};
    var mapdata = {};
 
-   var paletteScale = d3.scale.linear()
-      .domain([0, 100])
-      .range(['green', 'red']);
-
    incidenceData.forEach(function (dataRow) {
       var days = dataRow.dates;
       var newcases = dataRow.newcases;
@@ -154,8 +150,9 @@ function incidencePlot(incidenceData, prognose) {
          if (typeof (mapdata[dataRow.country.iso3]) == "undefined") {
             mapdata[dataRow.country.iso3] = { cases: 0 };
          }
+
          var entry = mapdata[dataRow.country.iso3];
-         entry.color = paletteScale(Math.max(entry.cases, newcases[end]));
+         entry.color = valToColor(Math.max(entry.cases, newcases[end]));
          entry.cases = newcases[end];
          var t = prognose ? { trace1: trace1, trace2: trace2 } : { trace1: trace1 };
          if (typeof (entry.traces) == "undefined") {
@@ -301,8 +298,25 @@ function plothover(gd, iso3, worldmap, activetraces) {
       }
    }
 
+   var flashing = false;
+
    activetraces.forEach(function (trace) {
-      geoupdate[trace.country.iso3] = 'blue';
+      var treg = trace.country.iso3;
+      var original = geoupdate[treg];
+      if (treg == iso3)
+      {
+         geoupdate[treg] = highlightColor(original, 'blue', 100);
+         flashing = true;
+      }
+      else
+      {
+         geoupdate[treg] = highlightColor(original, 'blue', 75);
+      }
+   });
+
+   /*
+   activetraces.forEach(function (trace) {
+   geoupdate[trace.country.iso3] = 'blue';
    });
 
    var flashing = false;
@@ -311,7 +325,7 @@ function plothover(gd, iso3, worldmap, activetraces) {
          geoupdate[iso3] = 'yellow';
          flashing = true;
       }
-   }
+   }*/
 
    worldmap.updateChoropleth(geoupdate);
 
@@ -375,4 +389,33 @@ function writeCountryData(data, countryData) {
          })
       }
    );
+}
+
+function valToColor(val)
+{
+   var paletteScale1 = d3.scale.linear()
+      .domain([0, 50])
+      .range(['green', 'yellow']);
+
+   var paletteScale2 = d3.scale.linear()
+      .domain([50, 100])
+      .range(['yellow', 'red']);
+
+   if (val < 25)
+   {
+      return paletteScale1(val);
+   }
+   else
+   {
+      return paletteScale2(val);
+   }
+}
+
+function highlightColor(color, color2, percent)
+{
+   var paletteScale = d3.scale.linear()
+      .domain([0, 100])
+      .range([color, color2]);
+
+   return paletteScale(percent);
 }
