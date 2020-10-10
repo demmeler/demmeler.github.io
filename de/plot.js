@@ -116,7 +116,7 @@ function incidencePlot(incidenceDataOutput) {
    var activetraces = [];
    var globalgd;
 
-   Plotly.newPlot(plotDiv, activetraces, layout);
+   Plotly.newPlot(plotDiv, activetraces, layout, {staticPlot: true});
 
    // ########################################################################
 
@@ -175,7 +175,7 @@ function incidencePlot(incidenceDataOutput) {
                }
             });
 
-            Plotly.newPlot(plotDiv, activetraces, layout).then(
+            Plotly.newPlot(plotDiv, activetraces, layout, {staticPlot: true}).then(
                gd => {
                   globalgd = gd;
                   gd.on('plotly_hover', function (data) {
@@ -204,7 +204,7 @@ function incidencePlot(incidenceDataOutput) {
                }
             });
 
-            Plotly.newPlot(plotDiv, activetraces, layout).then(
+            Plotly.newPlot(plotDiv, activetraces, layout, {staticPlot: true}).then(
                gd => {
                   globalgd = gd;
                   gd.on('plotly_hover', function (data) {

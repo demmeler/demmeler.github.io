@@ -199,7 +199,7 @@ function incidencePlot(incidenceData, prognose) {
    var activetraces = [];
    var globalgd;
 
-   Plotly.newPlot(plotDiv, activetraces, layout);
+   Plotly.newPlot(plotDiv, activetraces, layout, {staticPlot: true});
 
    var worldmap = new Datamap({
       element: document.getElementById('map'),
@@ -226,7 +226,7 @@ function incidencePlot(incidenceData, prognose) {
                }
             });
 
-            Plotly.newPlot(plotDiv, activetraces, layout).then(
+            Plotly.newPlot(plotDiv, activetraces, layout, {staticPlot: true}).then(
                gd => {
                   globalgd = gd;
                   gd.on('plotly_hover', function (data) {
@@ -257,7 +257,7 @@ function incidencePlot(incidenceData, prognose) {
                }
             });
 
-            Plotly.newPlot(plotDiv, activetraces, layout).then(
+            Plotly.newPlot(plotDiv, activetraces, layout, {staticPlot: true}).then(
                gd => {
                   globalgd = gd;
                   gd.on('plotly_hover', function (data) {
