@@ -175,12 +175,13 @@ function incidencePlot(incidenceData, prognose) {
       xaxis: {
          title: 'Days (0 = ' + dateFormat(0) + ')',
          showgrid: false,
-         zeroline: false
+         zeroline: false,
+         fixedrange: true
       },
       yaxis: {
          title: 'Weekly new cases per 100k',
-         //type: 'log',
-         showline: false
+         showline: false,
+         fixedrange: true
       },
       hovermode: 'closest',
       shapes: [{

@@ -88,11 +88,13 @@ function incidencePlot(incidenceDataOutput) {
       xaxis: {
          title: 'Days (0 = ' + tnow.format('DD.MM.YYYY') + ')',
          showgrid: false,
-         zeroline: false
+         zeroline: false,
+         fixedrange: true
       },
       yaxis: {
          title: 'Weekly new cases per 100k',
-         showline: false
+         showline: false,
+         fixedrange: true
       },
       hovermode: 'closest',
       shapes: [{
