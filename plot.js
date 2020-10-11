@@ -51,7 +51,7 @@ function getIncidenceData(data) {
          country: countryRow.country
       };
 
-      for (var i = -200; i <= 0; ++i) {
+      for (var i = -400; i <= 0; ++i) {
          var dateIndex = date(i - 1);
          var lastDateIndex = date(i - 8);
 
