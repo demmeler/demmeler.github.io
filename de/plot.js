@@ -19,7 +19,6 @@ function covplot() {
          incidencePlot(incidenceDataOutput);
 
          document.getElementById("loading").style.visibility = "hidden";
-         document.getElementById("resetbutton").style.visibility = "visible";
       })
    });
 }
@@ -33,7 +32,6 @@ function getPlotData(incidenceData)
    var traces = [];
    var mapcolors = {};
    var mapdata = {};
-
 
    Object.keys(incidenceData).forEach(region => {
       var dataRow = incidenceData[region];
@@ -129,7 +127,7 @@ function incidencePlot(incidenceDataOutput) {
       projection: '',
       setProjection: function (element) {
          var projection = d3.geo.equirectangular()
-            .center([10.5, 50.5])
+            .center([10.5, 51.0])
             //.rotate([4, 0])
             .scale(3800)
             .translate([element.offsetWidth / 2, element.offsetHeight / 2]);

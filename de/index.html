@@ -23,12 +23,13 @@
 </header>
 
 <body style="height:100%">
-   <a href="../index.html" style="position: absolute; left: 10"><-- World</a>
-   <p id="loading" style="position: relative; top: 30px">Loading RKI data ...</p>
-   <div id="plotdiv" style="height: 80%; width: 50%; top: 20px; position: relative; float: left"></div>
-   <div>
-      <button id="resetbutton" style="position: absolute; right: 10; visibility: hidden">reset</button>
-      <div id="map" style="height: 90%; width: 50%; top: 20px; position: relative; float: left"></div>
+   <div style="width: 100vh; position: relative">
+      <a href="../index.html" style="position: absolute; left: 10"><-- World</a>
+      <a id="loading" style="position: absolute; width:100%; text-align: center;">Loading RKI data ...</a>
+      <button id="resetbutton" style="position: absolute; right: 10; visibility: true">reset</button>
+
+      <div id="map" style="height: 70vh; width: 100vh; position: relative; top: 25px; background-color: aliceblue;"></div>
+      <div id="plotdiv" style="height: 60vh; width: 100vh;"></div>
    </div>
    <script>
       init();
@@ -39,13 +40,13 @@
          <li>
             Case numbers:
             <a href="https://opendata.arcgis.com/datasets/dd4580c810204019a7b8eb3e0b329dd6_0.csv">
-               https://opendata.arcgis.com/datasets/dd4580c810204019a7b8eb3e0b329dd6_0.csv
+               https://www.opendata.arcgis.com
             </a>
          </li>
          <li>
             Population numbers:
             <a href="https://www.destatis.de/DE/Themen/Laender-Regionen/Regionales/Gemeindeverzeichnis/Administrativ/04-kreise.html">
-               https://www.destatis.de/DE/Themen/Laender-Regionen/Regionales/Gemeindeverzeichnis/Administrativ/04-kreise.html
+               https://www.destatis.de
             </a>
          </li>
       </ul>
