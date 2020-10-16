@@ -129,7 +129,7 @@ function incidencePlot(incidenceDataOutput) {
          var projection = d3.geo.equirectangular()
             .center([10.5, 51.0])
             //.rotate([4, 0])
-            .scale(3800)
+            .scale(3800*(element.offsetHeight/536))
             .translate([element.offsetWidth / 2, element.offsetHeight / 2]);
          var path = d3.geo.path().projection(projection);
 
