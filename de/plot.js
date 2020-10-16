@@ -129,7 +129,7 @@ function incidencePlot(incidenceDataOutput) {
          var projection = d3.geo.equirectangular()
             .center([10.5, 51.0])
             //.rotate([4, 0])
-            .scale(3800*(element.offsetHeight/536))
+            .scale(3800*(element.offsetHeight/600))
             .translate([element.offsetWidth / 2, element.offsetHeight / 2]);
          var path = d3.geo.path().projection(projection);
 
@@ -252,10 +252,10 @@ function plothover(gd, region, worldmap, activetraces) {
    // Highlight trace
    var minop = 0.8;
    if (flashing) {
-      minop = 0.2;
+      minop = 0.5;
    }
    var update = {
-      'line.width': gd.data.map((_, i) => (gd.data[i].region == region) ? 1.5 : 1),
+      'line.width': gd.data.map((_, i) => (gd.data[i].region == region) ? 1.2 : 1),
       'opacity': gd.data.map((_, i) => (gd.data[i].region == region) ? 1 : minop)
    };
    Plotly.restyle(gd, update);

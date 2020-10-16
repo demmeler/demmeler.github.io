@@ -2,7 +2,7 @@
 
 <header>
    <title>
-      Covplot
+      COVID-19 World
    </title>
    <!-- https://plotly.com/ -->
    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
@@ -20,13 +20,17 @@
 </header>
 
 <body style="height:100%">
-   <div style="width: 110vh; position: relative">
-   <a href="de/index.html" style="position: absolute; right: 10">Germany --></a>
-   <button id="resetbutton" style="position: absolute; left: 10; visibility: visible">reset</button>
 
-   <div id="map" style="height: 50vh; width: 110vh; position: relative; top: 30px; background-color: aliceblue;"></div>
-   <div id="plotdiv" style="height: 50vh; width: 110vh; "></div>
+   <div style="width: 100%; margin-left:auto; margin-right: auto; ">
+      <div style="position:relative; width:100%; height: 30px">
+         <a href="de/index.html" style="position: absolute; right: 0">Germany --></a>
+         <button id="resetbutton" style="position: absolute; left: 0; visibility: visible">reset</button>
+      </div>
+
+      <div id="map" style="height: 50vh; width: 110vh; margin-left:auto; margin-right: auto; background-color: aliceblue; position:relative"></div>
+      <div id="plotdiv" style="height: 50vh; width: 100%; margin-left:auto; margin-right: auto; border-style:ridge"></div>
    </div>
+
    <script>init();</script>
    <p></p>
    <h4>How to use?</h4>

@@ -333,10 +333,10 @@ function plothover(gd, iso3, worldmap, activetraces) {
    // Highlight trace
    var minop = 0.8;
    if (flashing) {
-      minop = 0.2;
+      minop = 0.5;
    }
    var update = {
-      'line.width': gd.data.map((_, i) => (gd.data[i].country.iso3 == iso3) ? 1.5 : 1),
+      'line.width': gd.data.map((_, i) => (gd.data[i].country.iso3 == iso3) ? 1.2 : 1),
       'opacity': gd.data.map((_, i) => (gd.data[i].country.iso3 == iso3) ? 1 : minop)
    };
    Plotly.restyle(gd, update);
