@@ -168,7 +168,7 @@ function incidencePlot(incidenceData, prognose) {
    plotDiv = document.getElementById("plotdiv");
 
    var layout = {
-      title: 'Covid-19 incidence dashboard',
+      title: 'Covid-19 incidence',
       xaxis: {
          title: 'Days (0 = ' + dateFormat(0) + ')',
          showgrid: false,
@@ -193,7 +193,8 @@ function incidencePlot(incidenceData, prognose) {
             width: 1.5,
             dash: 'dot'
          }
-      }]
+      }],
+      showlegend: true
    };
 
    var activetraces = [];
