@@ -402,13 +402,21 @@ function valToColor(val)
       .domain([50, 100])
       .range(['yellow', 'red']);
 
-   if (val < 25)
+   var paletteScale3 = d3.scale.linear()
+      .domain([100, 500])
+      .range(['red', '#ff00ff']);
+
+   if (val < 50)
    {
       return paletteScale1(val);
    }
-   else
+   else if(val < 100)
    {
       return paletteScale2(val);
+   }
+   else
+   {
+      return paletteScale3(val);
    }
 }
 

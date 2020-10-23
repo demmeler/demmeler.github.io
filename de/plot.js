@@ -12,10 +12,11 @@ function covplot() {
          kreise.forEach(entry => {
             entry.Insgesamt = entry.Insgesamt.replace(/\s/g, '');
          });
-
+         console.log(kreise);
+         console.log(data);
          var populationData = getPopulationData(kreise);
          var incidenceDataOutput = getIncidenceDataRKI(data, populationData);
-
+         console.log(incidenceDataOutput);
          incidencePlot(incidenceDataOutput);
 
          document.getElementById("loading").style.visibility = "hidden";
@@ -418,20 +419,28 @@ function region2str(region) {
 function valToColor(val)
 {
    var paletteScale1 = d3.scale.linear()
-      .domain([0, 25])
+      .domain([0, 50])
       .range(['green', 'yellow']);
 
    var paletteScale2 = d3.scale.linear()
-      .domain([25, 50])
+      .domain([50, 100])
       .range(['yellow', 'red']);
 
-   if (val < 25)
+   var paletteScale3 = d3.scale.linear()
+      .domain([100, 500])
+      .range(['red', '#ff00ff']);
+
+   if (val < 50)
    {
       return paletteScale1(val);
    }
-   else
+   else if(val < 100)
    {
       return paletteScale2(val);
+   }
+   else
+   {
+      return paletteScale3(val);
    }
 }
 
