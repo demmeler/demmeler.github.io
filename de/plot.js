@@ -427,7 +427,7 @@ function valToColor(val)
       .range(['yellow', 'red']);
 
    var paletteScale3 = d3.scale.linear()
-      .domain([100, 500])
+      .domain([100, 300])
       .range(['red', '#ff00ff']);
 
    if (val < 50)
