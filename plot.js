@@ -9,21 +9,7 @@ function covplot() {
    Plotly.d3.csv(casescsv, function (data) {
       Plotly.d3.csv(countriescsv, function (countrydata) {
          var countries = [
-            {},
-            /*{ c: "Germany", r: "" },
-            { c: "Austria", r: "" },
-            { c: "Italy", r: "" },
-            { c: "Spain", r: "" },
-            { c: "Sweden", r: "" },
-            { c: "US", r: "" },
-            { c: "Brazil", r: "" },
-            { c: "India" },
-            { c: "Switzerland", r: "" },
-            //{ c: "China" },
-            { c: "Netherlands", r: "" },
-            { c: "France", r: "" },
-            { c: "Quatar" },
-            { c: "United Kingdom", r: "" }*/
+            {}
          ];
          var filteredData = getCountryData(countries, data, countrydata);
          var incidenceData = getIncidenceData(filteredData);
@@ -44,27 +30,30 @@ function getIncidenceData(data) {
    var incidenceData = [];
 
    data.forEach(function (countryRow) {
-      var incidenceEntry = {
-         name: (countryRow['Country/Region'] + " " + countryRow['Province/State']),
-         dates: [],
-         newcases: [],
-         country: countryRow.country
-      };
+      if ((typeof(countryRow.country) != "undefined") &&  (countryRow.country['Population'] > 0))
+      {
+         var incidenceEntry = {
+            name: (countryRow['Country/Region'] + " " + countryRow['Province/State']),
+            dates: [],
+            newcases: [],
+            country: countryRow.country
+         };
 
-      for (var i = -400; i <= 0; ++i) {
-         var dateIndex = date(i - 1);
-         var lastDateIndex = date(i - 8);
+         for (var i = -400; i <= 0; ++i) {
+            var dateIndex = date(i - 1);
+            var lastDateIndex = date(i - 8);
 
-         if (typeof (countryRow[lastDateIndex]) != "undefined") {
-            var cases = countryRow[dateIndex] - countryRow[lastDateIndex];
-            var cases_per100k = cases * (100000.0 / countryRow.country['Population']);
+            if (typeof (countryRow[lastDateIndex]) != "undefined") {
+               var cases = countryRow[dateIndex] - countryRow[lastDateIndex];
+               var cases_per100k = cases * (100000.0 / countryRow.country['Population']);
 
-            incidenceEntry.dates.push(i);
-            incidenceEntry.newcases.push(cases_per100k);
+               incidenceEntry.dates.push(i);
+               incidenceEntry.newcases.push(cases_per100k);
+            }
          }
-      }
 
-      incidenceData.push(incidenceEntry);
+         incidenceData.push(incidenceEntry);
+      }
    })
 
    return incidenceData;
@@ -387,7 +376,7 @@ function writeCountryData(data, countryData) {
                (row['Province/State'] == countryRow['Province_State'])) {
                row.country = countryRow;
             }
-         })
+         });
       }
    );
 }
