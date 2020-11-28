@@ -4,23 +4,36 @@
 var rkicsv = "https://opendata.arcgis.com/datasets/dd4580c810204019a7b8eb3e0b329dd6_0.csv";
 var kreisecsv = "https://raw.githubusercontent.com/demmeler/demmeler.github.io/master/de/kreise.csv";
 var germanymapurl = "https://raw.githubusercontent.com/demmeler/demmeler.github.io/master/de/topology.json";
+var incidencedataurl = "https://raw.githubusercontent.com/demmeler/demmeler.github.io/master/server/incidenceData.json"
 
 function covplot() {
-   Plotly.d3.csv(rkicsv, function (data) {
-      Plotly.d3.csv(kreisecsv, function (kreise) {
-         // filter spaces
-         kreise.forEach(entry => {
-            entry.Insgesamt = entry.Insgesamt.replace(/\s/g, '');
-         });
-         console.log(kreise);
-         console.log(data);
-         var populationData = getPopulationData(kreise);
-         var incidenceDataOutput = getIncidenceDataRKI(data, populationData);
-         console.log(incidenceDataOutput);
-         incidencePlot(incidenceDataOutput);
+   //Plotly.d3.csv(rkicsv, function (data) {
+   /*Papa.parse(rkicsv, {
+      download : true,
+      header: true,
+      complete : function(results) {
+         var data = results.data;
 
-         document.getElementById("loading").style.visibility = "hidden";
-      })
+         Plotly.d3.csv(kreisecsv, function (kreise) {
+            // filter spaces
+            kreise.forEach(entry => {
+               entry.Insgesamt = entry.Insgesamt.replace(/\s/g, '');
+            });
+            console.log(kreise);
+            console.log(data);
+            var populationData = getPopulationData(kreise);
+            var incidenceDataOutput = getIncidenceDataRKI(data, populationData);
+            console.log(incidenceDataOutput);
+            incidencePlot(incidenceDataOutput);
+
+            document.getElementById("loading").style.visibility = "hidden";
+         })
+      }
+   });*/
+
+   $.getJSON(incidencedataurl, incidenceDataOutput => {
+      console.log(incidenceDataOutput);
+      incidencePlot(incidenceDataOutput);
    });
 }
 
@@ -75,7 +88,8 @@ function getPlotData(incidenceData)
 
 // input: incidenceDataOutput = {tnow, incidenceData}
 function incidencePlot(incidenceDataOutput) {
-   var tnow = incidenceDataOutput.tnow;
+   //var tnow = incidenceDataOutput.tnow.format('DD.MM.YYYY');
+   var tnow = moment(incidenceDataOutput.tnow);
    var plotdata = getPlotData(incidenceDataOutput.incidenceData);
 
    var traces = plotdata.traces;
@@ -189,7 +203,6 @@ function incidencePlot(incidenceDataOutput) {
 
          // #####################################################################
          document.getElementById("resetbutton").onclick = function (evt) {
-            console.log(worldmap);
             Object.keys(worldmap.options.data).forEach(key => {
                worldmap.options.data[key].traces.forEach(t => {
                   traces[t.trace1].active = false;
@@ -273,19 +286,21 @@ function getIncidenceDataRKI(data, population) {
    var tmin = 0;
    var tmax = -1000;
 
-   for (var i = 0; i < data.length; ++i) {
-      var tdata = moment(data[i].Meldedatum, "YYYY/MM/DD hh:mm");
+   data.forEach(function(row) {
+      var tdata = moment(row.Meldedatum, "YYYY/MM/DD hh:mm");
       var t = parseInt(tdata.diff(tnow, 'days'));
-      data[i]['t'] = t;
+      row['t'] = t;
       tmin = (t < tmin) ? t : tmin;
       tmax = (t > tmax) ? t : tmax;
-   }
+   });
 
    console.log(tmin);
    console.log(tmax);
 
    var grouped = _.mapValues(_.groupBy(data, 'IdLandkreis'),
       clist => clist.map(d => _.omit(d, 'IdLandkreis')));
+
+   console.log('grouped');
 
    var incidenceData = {};
 
