@@ -274,7 +274,7 @@ function getIncidenceDataRKI(data, population) {
    var tmax = -1000;
 
    for (var i = 0; i < data.length; ++i) {
-      var tdata = moment(data[i].Refdatum, "YYYY/MM/DD hh:mm");
+      var tdata = moment(data[i].Meldedatum, "YYYY/MM/DD hh:mm");
       var t = parseInt(tdata.diff(tnow, 'days'));
       data[i]['t'] = t;
       tmin = (t < tmin) ? t : tmin;
