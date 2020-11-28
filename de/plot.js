@@ -34,6 +34,7 @@ function covplot() {
    $.getJSON(incidencedataurl, incidenceDataOutput => {
       console.log(incidenceDataOutput);
       incidencePlot(incidenceDataOutput);
+      document.getElementById("loading").style.visibility = "hidden";
    });
 }
 
