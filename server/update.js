@@ -5,10 +5,10 @@ const _ = require('lodash');
 const moment = require('moment');
 
 // Todo: schnellere downloadmethode??
-/*child_process.exec('wget -O RKI_COVID19.csv https://opendata.arcgis.com/datasets/dd4580c810204019a7b8eb3e0b329dd6_0.csv')
+child_process.exec('wget -O RKI_COVID19.csv https://opendata.arcgis.com/datasets/dd4580c810204019a7b8eb3e0b329dd6_0.csv')
 .on('close', (code) => {
    console.log("done");
-*/
+
 
 var data = [];
 
@@ -50,7 +50,7 @@ fs.createReadStream('RKI_COVID19.csv')
 
    });
 
-/*});*/
+});
 
 
 // ###############################################################################################################
