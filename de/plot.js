@@ -31,16 +31,16 @@ function getPlotData(incidenceData)
       }
 
       var days = dataRow.trace.times;
-      var newcases = dataRow.trace.incidence;
-      var end = newcases.length - 1;
-      var max = Math.max(...newcases);
+      var incidence = dataRow.trace.incidence;
+      var end = incidence.length - 1;
+      var max = Math.max(...incidence);
 
       if (max > 0) {
          traces.push({
             name: dataRow.Name,
             region: region2str(region),
             x: days,
-            y: newcases,
+            y: incidence,
             mode: 'lines',
             line: {
                width: 1
@@ -51,8 +51,8 @@ function getPlotData(incidenceData)
          trace1 = traces.length - 1;
 
          mapdata[region2str(region)] = {
-            color: valToColor(newcases[end]),
-            cases: newcases[end],
+            color: valToColor(incidence[end]),
+            last_incidence: incidence[end].toFixed(0),
             traces: [{ trace1: trace1 }]
          };
          mapcolors[region2str(region)] = mapdata[region2str(region)].color;
@@ -135,9 +135,8 @@ function incidencePlot(incidenceDataOutput) {
                plothover(globalgd, geo.id, worldmap, activetraces);
             }
 
-            return ['<div class="hoverinfo"><strong>',
-                     geo.properties.name,
-                     '</strong></div>'].join('');
+            return ['<div class="hoverinfo"><strong>', geo.properties.name,'</strong><br>',
+                     data.last_incidence , ' pro 100k</div>'].join('');
          }
       },
       data: plotdata.mapdata,
@@ -248,155 +247,6 @@ function plothover(gd, region, worldmap, activetraces) {
       'opacity': gd.data.map((_, i) => (gd.data[i].region == region) ? 1 : minop)
    };
    Plotly.restyle(gd, update);
-}
-
-// ###############################################################################################################
-// Incidence data generation
-
-// input:   data = [{Datenstand, Refdatum, IdLandkreis, Landkreis, AnzahlFall, ...}, ...]
-//          population[IdLandkreis] = {name, num}
-// output:  out = {incidenceData, tnow}, incidenceData -> see code
-function getIncidenceDataRKI(data, population) {
-   var tnow = moment(data[0].Datenstand, "DD.MM.YYYY, hh:mm Uhr");
-   var tmin = 0;
-   var tmax = -1000;
-
-   data.forEach(function(row) {
-      var tdata = moment(row.Meldedatum, "YYYY/MM/DD hh:mm");
-      var t = parseInt(tdata.diff(tnow, 'days'));
-      row['t'] = t;
-      tmin = (t < tmin) ? t : tmin;
-      tmax = (t > tmax) ? t : tmax;
-   });
-
-   console.log(tmin);
-   console.log(tmax);
-
-   var grouped = _.mapValues(_.groupBy(data, 'IdLandkreis'),
-      clist => clist.map(d => _.omit(d, 'IdLandkreis')));
-
-   console.log('grouped');
-
-   var incidenceData = {};
-
-   Object.keys(grouped).forEach(function (key) {
-      incidenceData[key] = {
-         IdLandkreis: key,
-         Name: grouped[key][0].Landkreis,
-         trace: {
-            times: [],
-            // debug newcases: [],
-            // debug newcases_weekly: [],
-            // debug cases: [],
-            incidence: [],
-         },
-         incidence_available: false,
-         population: undefined
-      };
-
-      // newcases
-      // sum
-      var newcases = {};
-      var sum = 0;
-
-      grouped[key].forEach(row => {
-         newcases[row.t] = { num: 0, rows: [] };
-      });
-
-      grouped[key].forEach(row => {
-         var num = parseInt(row.AnzahlFall);
-         newcases[row.t].num += num;
-         sum += num;
-      });
-
-      // population
-      // incidence_available
-      var pop = population[key];
-      if (typeof (pop) != "undefined") {
-         incidenceData[key].incidence_available = true;
-         incidenceData[key].population = pop.num;
-      }
-
-      // trace
-      var c = 0;
-      var c_lw = 0;
-
-      for (var time = tmin; time < tmax; ++time) {
-         // current week
-         var entry = newcases[time];
-         var nc = typeof (entry) == "undefined" ? 0 : entry.num;
-         c += nc;
-
-         // last week
-         if (time - 7 >= tmin) {
-            var entry_lw = newcases[time - 7];
-            var nc_lw = typeof (entry_lw) == "undefined" ? 0 : entry_lw.num;
-            c_lw += nc_lw;
-         }
-
-         // trajectories
-         incidenceData[key].trace.times.push(time);
-         // debug incidenceData[key].trace.newcases.push(nc);
-         // debug incidenceData[key].trace.cases.push(c);
-         // debug incidenceData[key].trace.newcases_weekly.push(c - c_lw);
-         if (incidenceData[key].incidence_available) {
-            incidenceData[key].trace.incidence.push((c - c_lw) * 100000.0 / pop.num);
-         }
-      }
-   });
-
-   return { incidenceData: incidenceData, tnow: tnow };
-}
-
-// input:   kreise = [{Nummer, Insgesamt}, ...]
-// ouptut:  population[Nummer] = {name, num}
-function getPopulationData(kreise) {
-   var grouped = _.mapValues(_.groupBy(kreise, 'Nummer'),
-      clist => clist.map(d => _.omit(d, 'Nummer')));
-
-   var population = {};
-
-   Object.keys(grouped).forEach(key => {
-      var popentry = {
-         name: undefined,
-         num: 0
-      };
-
-      grouped[key].forEach(entry => {
-         popentry.num += parseInt(entry.Insgesamt);
-      });
-
-      if (!isNaN(popentry.num) && popentry.num > 0) {
-         population[key] = popentry;
-      }
-   });
-
-   return population;
-}
-
-// return: {globalmax, globalendmax}
-function getGlobalmax(incidenceData)
-{
-   var globalmax = 0;
-   var globalendmax = 0;
-
-   Object.keys(incidenceData).forEach(region => {
-      var dataRow = incidenceData[region];
-
-      var incidences = dataRow.trace.incidence;
-
-      var max = Math.max(...incidences);
-      if (max > globalmax) {
-         globalmax = max;
-      }
-
-      var endval = incidences[incidences.length - 1];
-      if (endval > globalendmax) {
-         globalendmax = endval
-      }
-   });
-
-   return {globalmax, globalendmax};
 }
 
 // ###############################################################################################################

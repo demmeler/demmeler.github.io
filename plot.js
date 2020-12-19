@@ -35,7 +35,7 @@ function getIncidenceData(data) {
          var incidenceEntry = {
             name: (countryRow['Country/Region'] + " " + countryRow['Province/State']),
             dates: [],
-            newcases: [],
+            incidence: [],
             country: countryRow.country
          };
 
@@ -48,7 +48,7 @@ function getIncidenceData(data) {
                var cases_per100k = cases * (100000.0 / countryRow.country['Population']);
 
                incidenceEntry.dates.push(i);
-               incidenceEntry.newcases.push(cases_per100k);
+               incidenceEntry.incidence.push(cases_per100k);
             }
          }
 
@@ -64,12 +64,12 @@ function incidencePlot(incidenceData, prognose) {
    var globalendmax = 0;
 
    incidenceData.forEach(function (dataRow) {
-      var max = Math.max(...dataRow.newcases);
+      var max = Math.max(...dataRow.incidence);
       if (max > globalmax) {
          globalmax = max;
       }
 
-      var endval = dataRow.newcases[dataRow.newcases.length - 1];
+      var endval = dataRow.incidence[dataRow.incidence.length - 1];
       if (endval > globalendmax) {
          globalendmax = endval
       }
@@ -81,24 +81,24 @@ function incidencePlot(incidenceData, prognose) {
 
    incidenceData.forEach(function (dataRow) {
       var days = dataRow.dates;
-      var newcases = dataRow.newcases;
+      var incidence = dataRow.incidence;
 
       var Dt_prog = 25;
       var begin = days.length - Dt_prog;
       var end = days.length - 1;
-      var factor = (newcases[end] + 0.01) / (newcases[begin] + 0.01);
+      var factor = (incidence[end] + 0.01) / (incidence[begin] + 0.01);
       var Dt = end - begin;
       var k = Math.log(factor) / Dt;
 
-      var max = Math.max(...newcases);
+      var max = Math.max(...incidence);
 
       var days_prog = [];
-      var newcases_prog = [];
+      var incidence_prog = [];
       for (var di = -Dt_prog; di < 100; di += 1) {
-         var prog = newcases[end] * Math.exp(k * di);
+         var prog = incidence[end] * Math.exp(k * di);
          if (prog < Math.max(150, 1.5 * max)) {
             days_prog.push(di);
-            newcases_prog.push(prog);
+            incidence_prog.push(prog);
          }
       }
 
@@ -107,7 +107,7 @@ function incidencePlot(incidenceData, prognose) {
             name: dataRow.name,
             country: dataRow.country,
             x: days,
-            y: newcases,
+            y: incidence,
             mode: 'lines',
             line: {
                width: 1
@@ -123,7 +123,7 @@ function incidencePlot(incidenceData, prognose) {
                name: (dataRow.name),
                country: dataRow.country,
                x: days_prog,
-               y: newcases_prog,
+               y: incidence_prog,
                mode: 'lines',
                line: {
                   dash: 'dot',
@@ -137,12 +137,12 @@ function incidencePlot(incidenceData, prognose) {
          }
 
          if (typeof (mapdata[dataRow.country.iso3]) == "undefined") {
-            mapdata[dataRow.country.iso3] = { cases: 0 };
+            mapdata[dataRow.country.iso3] = { incidence: 0 };
          }
 
          var entry = mapdata[dataRow.country.iso3];
-         entry.color = valToColor(Math.max(entry.cases, newcases[end]));
-         entry.cases = newcases[end];
+         entry.last_incidence = Math.max(entry.incidence, incidence[end]).toFixed(0);
+         entry.color = valToColor(entry.last_incidence);
          var t = prognose ? { trace1: trace1, trace2: trace2 } : { trace1: trace1 };
          if (typeof (entry.traces) == "undefined") {
             entry.traces = [t];
@@ -268,9 +268,8 @@ function incidencePlot(incidenceData, prognose) {
             if (true == worldmap.options.data.hasOwnProperty(geo.id)) {
                plothover(globalgd, geo.id, worldmap, activetraces);
             }
-            return ['<div class="hoverinfo"><strong>',
-               geo.properties.name,
-               '</strong></div>'].join('');
+            return ['<div class="hoverinfo"><strong>', geo.properties.name,'</strong><br>',
+                     data.last_incidence , ' pro 100k</div>'].join('');
          }
       }
    });
