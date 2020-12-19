@@ -7,34 +7,9 @@ var germanymapurl = "https://raw.githubusercontent.com/demmeler/demmeler.github.
 var incidencedataurl = "https://raw.githubusercontent.com/demmeler/demmeler.github.io/master/server/incidenceData.json"
 
 function covplot() {
-   //Plotly.d3.csv(rkicsv, function (data) {
-   /*Papa.parse(rkicsv, {
-      download : true,
-      header: true,
-      complete : function(results) {
-         var data = results.data;
-
-         Plotly.d3.csv(kreisecsv, function (kreise) {
-            // filter spaces
-            kreise.forEach(entry => {
-               entry.Insgesamt = entry.Insgesamt.replace(/\s/g, '');
-            });
-            console.log(kreise);
-            console.log(data);
-            var populationData = getPopulationData(kreise);
-            var incidenceDataOutput = getIncidenceDataRKI(data, populationData);
-            console.log(incidenceDataOutput);
-            incidencePlot(incidenceDataOutput);
-
-            document.getElementById("loading").style.visibility = "hidden";
-         })
-      }
-   });*/
-
    $.getJSON(incidencedataurl, incidenceDataOutput => {
       console.log(incidenceDataOutput);
       incidencePlot(incidenceDataOutput);
-      document.getElementById("loading").style.visibility = "hidden";
    });
 }
 
@@ -89,12 +64,11 @@ function getPlotData(incidenceData)
 
 // input: incidenceDataOutput = {tnow, incidenceData}
 function incidencePlot(incidenceDataOutput) {
-   //var tnow = incidenceDataOutput.tnow.format('DD.MM.YYYY');
    var tnow = moment(incidenceDataOutput.tnow);
    var plotdata = getPlotData(incidenceDataOutput.incidenceData);
-
    var traces = plotdata.traces;
 
+   document.getElementById("title").textContent = "Stand: " + tnow.format('DD.MM.YYYY');
    plotDiv = document.getElementById("plotdiv");
 
    var layout = {
