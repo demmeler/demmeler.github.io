@@ -14,10 +14,9 @@ RUN apt-get update \
     && node --version \
     && npm --version
 
-# bashrc additionals
-#COPY ./.mybashrc /root
-#RUN echo "" >> ~/.bashrc
-#RUN echo "source .mybashrc" >> ~/.bashrc
+RUN apt-get update \
+    && apt install wget \
+    && rm -rf /var/lib/apt/lists/*
 
 # Switch back to dialog for any ad-hoc use of apt-get
 ENV DEBIAN_FRONTEND=dialog
