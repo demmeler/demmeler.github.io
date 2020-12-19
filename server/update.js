@@ -33,7 +33,9 @@ fs.createReadStream('RKI_COVID19.csv')
 
             var populationData = getPopulationData(kreise);
             var incidenceDataOutput = getIncidenceDataRKI(data, populationData);
-            console.log(incidenceDataOutput.incidenceData);
+
+            console.log('Incidence date generated.');
+            console.log(incidenceDataOutput.incidenceData[0]);
 
             storeData(incidenceDataOutput, 'incidenceData.json');
          });
@@ -63,14 +65,10 @@ function getIncidenceDataRKI(data, population) {
       tmax = (t > tmax) ? t : tmax;
    });
 
-   console.log('done.')
-   console.log(tmin);
-   console.log(tmax);
+   console.log('Data from day ' + tmin + ' to day ' + tmax + '.');
 
    var grouped = _.mapValues(_.groupBy(data, 'IdLandkreis'),
       clist => clist.map(d => _.omit(d, 'IdLandkreis')));
-
-   console.log('grouped');
 
    var incidenceData = {};
 
