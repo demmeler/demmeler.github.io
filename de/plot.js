@@ -6,9 +6,11 @@ var kreisecsv = "https://raw.githubusercontent.com/demmeler/demmeler.github.io/m
 var germanymapurl = "https://raw.githubusercontent.com/demmeler/demmeler.github.io/master/de/topology.json";
 var incidencedataurl = "https://raw.githubusercontent.com/demmeler/demmeler.github.io/master/server/incidenceData.json"
 
+var incidenceDataGlob
+
 function covplot() {
    $.getJSON(incidencedataurl, incidenceDataOutput => {
-      console.log(incidenceDataOutput);
+      incidenceDataGlob = incidenceDataOutput;
       incidencePlot(incidenceDataOutput);
    });
 }

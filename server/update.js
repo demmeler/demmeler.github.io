@@ -7,8 +7,7 @@ const moment = require('moment');
 // Todo: schnellere downloadmethode??
 child_process.exec('wget -O RKI_COVID19.csv https://opendata.arcgis.com/datasets/dd4580c810204019a7b8eb3e0b329dd6_0.csv')
 .on('close', (code) => {
-   console.log("done");
-
+   console.log("RKI_COVID19.csv loaded");
 
 var data = [];
 
@@ -18,8 +17,7 @@ fs.createReadStream('RKI_COVID19.csv')
       data.push(row);
    })
    .on('end', () => {
-      console.log('CSV file successfully processed');
-
+      console.log('RKI_COVID19.csv parsed.');
       console.log(data[0]);
 
       var kreise = [];
@@ -30,7 +28,7 @@ fs.createReadStream('RKI_COVID19.csv')
             kreise.push(row);
          })
          .on('end', () => {
-            console.log('done');
+            console.log('kreise.csv parsed.');
             console.log(kreise[0]);
 
             var populationData = getPopulationData(kreise);
@@ -55,6 +53,8 @@ function getIncidenceDataRKI(data, population) {
    var tmin = 0;
    var tmax = -1000;
 
+   console.log('Iterate over RKI rows ...')
+
    data.forEach(function (row) {
       var tdata = moment(row.Meldedatum, "YYYY/MM/DD hh:mm");
       var t = parseInt(tdata.diff(tnow, 'days'));
@@ -63,6 +63,7 @@ function getIncidenceDataRKI(data, population) {
       tmax = (t > tmax) ? t : tmax;
    });
 
+   console.log('done.')
    console.log(tmin);
    console.log(tmax);
 
