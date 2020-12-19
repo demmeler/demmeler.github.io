@@ -18,5 +18,8 @@ RUN apt-get update \
     && apt install wget \
     && rm -rf /var/lib/apt/lists/*
 
+RUN git config --global user.email "nodedev"
+RUN git config --global user.name "nodedev"
+
 # Switch back to dialog for any ad-hoc use of apt-get
 ENV DEBIAN_FRONTEND=dialog
