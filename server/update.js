@@ -47,7 +47,7 @@ fs.createReadStream('RKI_COVID19.csv')
 // ###############################################################################################################
 // Incidence data generation
 
-// input:   data = [{Datenstand, Refdatum, IdLandkreis, Landkreis, AnzahlFall, ...}, ...]
+// input:   data = [{Datenstand, Meldedatum, IdLandkreis, Landkreis, AnzahlFall, ...}, ...]
 //          population[IdLandkreis] = {name, num}
 // output:  out = {incidenceData, tnow}, incidenceData -> see code
 function getIncidenceDataRKI(data, population) {
@@ -111,8 +111,8 @@ function getIncidenceDataRKI(data, population) {
       }
 
       // trace
-      var c = 0;
-      var c_lw = 0;
+      var c = 0;     // cases accumulated
+      var c_lw = 0;  // cases 7 days before
 
       for (var time = tmin; time < tmax; ++time) {
          // current week
