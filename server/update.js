@@ -38,16 +38,7 @@ fs.createReadStream('RKI_COVID19.csv')
             console.log(incidenceDataOutput.incidenceData);
 
             storeData(incidenceDataOutput, 'incidenceData.json');
-            /*child_process.exec('git reset && git pull && git add incidenceData.json && git commit -m "automatic update" && git push', function (error, stdout, stderr) {
-               console.log("--stdout--");
-               console.log(stdout);
-               console.log("--stderr--");
-               console.log(stderr);
-               console.log("--error--");
-               console.log(error);
-            });*/
          });
-
    });
 
 });
