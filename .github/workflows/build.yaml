@@ -16,8 +16,8 @@ jobs:
       run: bash container/create.sh
     - name: build
       run: bash server/start_update.sh
-    - name: Store inidence data
-      uses: actions/upload-artifact@v2
-      with:
-        name: incidenceData
-        path: node_build/incidenceData.json
+#    - name: Store inidence data
+#      uses: actions/upload-artifact@v2
+#      with:
+#        name: incidenceData
+#        path: node_build/incidenceData.json
