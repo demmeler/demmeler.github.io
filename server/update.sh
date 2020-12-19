@@ -11,5 +11,5 @@ node update.js
 
 cp incidenceData.json ../server
 git add ../server/incidenceData.json
-git commit -m "automatic update - $(date)"
+git commit -m "automatic update"
 git push
