@@ -13,9 +13,7 @@
 
    <script src="plot.js"></script>
    <script>
-      function init() {
-         covplot();
-      }
+      covplot();
    </script>
 </header>
 
@@ -31,25 +29,24 @@
       <div id="plotdiv" style="height: 50vh; width: 110vh; margin-left:auto; margin-right: auto; border-style:ridge"></div>
    </div>
 
-   <script>init();</script>
+   <script>covplot();</script>
    <p></p>
-   <h4>How to use?</h4>
-   <p>Click on the map to select/deselect countries to be compared.</p>
-   <video width="50%" controls>
-      <source src="https://demmeler.github.io/tutorial.mp4" type="video/mp4">
-      Your browser does not support the video tag.
-   </video>
-   <h4>Where does the data come from?</h4>
-   <p>The data comes from the
-      <a href="https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data">COVID-19 Data Repository</a>
-      by John Hopkins University. The incidence is calculated from the
-      <a
-         href="https://github.com/CSSEGISandData/COVID-19/blob/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv">raw
-         numbers of confirmed cases</a>
-      and
-      <a href="https://github.com/CSSEGISandData/COVID-19/blob/master/csse_covid_19_data/UID_ISO_FIPS_LookUp_Table.csv">population
-         size</a>.
-      <br />
+
+   <h4>Data source:</h4>
+   <p>
+      <ul>
+         <li>
+            <a href="https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data">COVID-19 Data Repository</a>.
+            The incidence is calculated from the
+            <a
+               href="https://github.com/CSSEGISandData/COVID-19/blob/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv">raw
+               numbers of confirmed cases</a>
+            and
+            <a href="https://github.com/CSSEGISandData/COVID-19/blob/master/csse_covid_19_data/UID_ISO_FIPS_LookUp_Table.csv">population
+               size</a>.
+            <br />
+         </li>
+      </ul>
       <!--The extrapolation is a fitted exponential curve based on two points and should not be taken too serious.
       It just gives an intuition about the current trend given that the R-value stays constant.-->
    </p>

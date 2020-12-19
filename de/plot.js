@@ -420,17 +420,24 @@ function valToColor(val)
       .domain([100, 300])
       .range(['red', '#ff00ff']);
 
+   var paletteScale4 = d3.scale.linear()
+      .domain([300, 2000])
+      .range(['#ff00ff', 'black'])
+
    if (val < 50)
    {
       return paletteScale1(val);
    }
-   else if(val < 100)
+   else if (val < 100)
    {
       return paletteScale2(val);
    }
-   else
+   else if (val < 300)
    {
       return paletteScale3(val);
+   }
+   else{
+      return paletteScale4(val);
    }
 }
 
