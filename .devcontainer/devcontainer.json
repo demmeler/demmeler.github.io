@@ -1,8 +1,8 @@
 // For format details, see https://aka.ms/vscode-remote/devcontainer.json or this file's README at:
 // https://github.com/microsoft/vscode-dev-containers/tree/v0.117.0/containers/cpp
 {
-	"name": "hometildev-vscode",
-	"image": "hometildev",
+	"name": "nodedev-vscode",
+	"image": "nodedev",
 	"forwardPorts": [
 		2224,
 		3000
@@ -10,8 +10,8 @@
 
 	// X11 ...
 	"runArgs": [
-		"-e", "DISPLAY=host.docker.internal:0", "--hostname", "dev",
-		"-v", "/Users/manueldemmeler:/host"
+		//"-e", "DISPLAY=host.docker.internal:0", "--hostname", "dev",
+		//"-v", "/Users/manuel:/host"
 	],
 
 	// Set *default* container specific settings.json values on container create.
@@ -20,11 +20,11 @@
 	},
 	// Add the IDs of extensions you want installed when the container is created.
 	"extensions": [
-		"ms-vscode.cpptools",
+		/*"ms-vscode.cpptools",
 		"ms-vscode.cmake-tools",
 		"eamodio.gitlens",
       "twxs.cmake",
-      "felipe.nasc-touchbar"
+      "felipe.nasc-touchbar"*/
 	]
 	// Use 'postCreateCommand' to run commands after the container is created.
 	// "postCreateCommand": "gcc -v",
