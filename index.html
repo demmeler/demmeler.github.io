@@ -1,6 +1,14 @@
 <html>
 
 <header>
+   <!-- Global site tag (gtag.js) - Google Analytics -->
+   <script async src="https://www.googletagmanager.com/gtag/js?id=G-ECLH592BW2"></script>
+   <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() { dataLayer.push(arguments); }
+      gtag('js', new Date());
+      gtag('config', 'G-ECLH592BW2');
+   </script>
    <title>
       COVID-19 World
    </title>
@@ -34,20 +42,20 @@
 
    <h4>Data source:</h4>
    <p>
-      <ul>
-         <li>
-            <a href="https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data">COVID-19 Data Repository</a>.
-            The incidence is calculated from the
-            <a
-               href="https://github.com/CSSEGISandData/COVID-19/blob/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv">raw
-               numbers of confirmed cases</a>
-            and
-            <a href="https://github.com/CSSEGISandData/COVID-19/blob/master/csse_covid_19_data/UID_ISO_FIPS_LookUp_Table.csv">population
-               size</a>.
-            <br />
-         </li>
-      </ul>
-      <!--The extrapolation is a fitted exponential curve based on two points and should not be taken too serious.
+   <ul>
+      <li>
+         <a href="https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data">COVID-19 Data Repository</a>.
+         The incidence is calculated from the
+         <a
+            href="https://github.com/CSSEGISandData/COVID-19/blob/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv">raw
+            numbers of confirmed cases</a>
+         and
+         <a href="https://github.com/CSSEGISandData/COVID-19/blob/master/csse_covid_19_data/UID_ISO_FIPS_LookUp_Table.csv">population
+            size</a>.
+         <br />
+      </li>
+   </ul>
+   <!--The extrapolation is a fitted exponential curve based on two points and should not be taken too serious.
       It just gives an intuition about the current trend given that the R-value stays constant.-->
    </p>
    <h4>Tools</h4>
