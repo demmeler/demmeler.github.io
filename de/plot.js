@@ -34,7 +34,6 @@ function getPlotData(incidenceData)
 
       var days = dataRow.trace.times;
       var incidence = dataRow.trace.incidence;
-      var end = incidence.length - 1;
       var max = Math.max(...incidence);
 
       if (max > 0) {
@@ -50,12 +49,19 @@ function getPlotData(incidenceData)
             active: false
          });
 
-         trace1 = traces.length - 1;
+         trace = traces[traces.length - 1];
+         var end = trace.y.length - 1;
+
+         var colors = [];
+         trace.y.forEach(val => {
+            colors.push(valToColor(val));
+         });
 
          mapdata[region2str(region)] = {
-            color: valToColor(incidence[end]),
-            last_incidence: incidence[end].toFixed(0),
-            traces: [{ trace1: trace1 }]
+            color: valToColor(trace.y[end]),
+            colors: colors,
+            last_incidence: trace.y[end].toFixed(0),
+            trace: trace
          };
          mapcolors[region2str(region)] = mapdata[region2str(region)].color;
       }
@@ -106,7 +112,7 @@ function incidencePlot(incidenceDataOutput) {
    var activetraces = [];
    var globalgd;
 
-   Plotly.newPlot(plotDiv, activetraces, layout, {staticPlot: true});
+   Plotly.newPlot(plotDiv, activetraces, layout, {staticPlot: true}).then(gd => {globalgd = gd;});
 
    // ########################################################################
 
@@ -130,7 +136,9 @@ function incidencePlot(incidenceDataOutput) {
       geographyConfig: {
          borderWidth: 0.5,
          dataUrl: germanymapurl,
-         highlightOnHover: false,
+         highlightOnHover: true,
+         highlightBorderColor: 'rgba(0, 0, 0, 1)',
+         highlightBorderWidth: 0.5,
          popupOnHover: true,
          popupTemplate: function (geo, data) {
             if (true == worldmap.options.data.hasOwnProperty(geo.id)) {
@@ -138,7 +146,7 @@ function incidencePlot(incidenceDataOutput) {
             }
 
             return ['<div class="hoverinfo"><strong>', geo.properties.name,'</strong><br>',
-                     data.last_incidence , ' pro 100k</div>'].join('');
+               worldmap.options.data[geo.id].last_incidence , ' pro 100k</div>'].join('');
          }
       },
       data: plotdata.mapdata,
@@ -152,10 +160,7 @@ function incidencePlot(incidenceDataOutput) {
             }
 
             var data = worldmap.options.data[geo.id];
-            data.traces.forEach(t => {
-               var active = traces[t.trace1].active;
-               traces[t.trace1].active = active ? false : true;
-            });
+            data.trace.active = !data.trace.active;
 
             activetraces = [];
             traces.forEach(trace => {
@@ -180,17 +185,10 @@ function incidencePlot(incidenceDataOutput) {
          // #####################################################################
          document.getElementById("resetbutton").onclick = function (evt) {
             Object.keys(worldmap.options.data).forEach(key => {
-               worldmap.options.data[key].traces.forEach(t => {
-                  traces[t.trace1].active = false;
-               });
+               worldmap.options.data[key].trace.active = false;
             });
 
             activetraces = [];
-            traces.forEach(trace => {
-               if (trace.active) {
-                  activetraces.push(trace);
-               }
-            });
 
             Plotly.newPlot(plotDiv, activetraces, layout, {staticPlot: true}).then(
                gd => {
@@ -204,6 +202,23 @@ function incidencePlot(incidenceDataOutput) {
                }
             )
          };
+
+         slider = document.getElementById("timeslider");
+         slider.addEventListener("input", function() {
+            Object.keys(worldmap.options.data).forEach(key => {
+               data = worldmap.options.data[key];
+               data.color = data.colors[this.value];
+               data.last_incidence = data.trace.y[this.value].toFixed(0);
+            });
+
+            tselected = moment(tnow).add(traces[0].x[this.value], "days");
+            document.getElementById("title").textContent = "Stand: " + tselected.format('DD.MM.YYYY');
+
+            plothover(globalgd, null, worldmap, activetraces);
+         });
+         slider.min = 0;
+         slider.max = traces[0].y.length - 1;
+         slider.value = slider.max;
 
          // #####################################################################
          worldmap.updateChoropleth(plotdata.mapcolors);
