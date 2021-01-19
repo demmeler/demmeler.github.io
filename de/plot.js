@@ -76,7 +76,7 @@ function incidencePlot(incidenceDataOutput) {
    var plotdata = getPlotData(incidenceDataOutput.incidenceData);
    var traces = plotdata.traces;
 
-   document.getElementById("title").textContent = "Stand: " + tnow.format('DD.MM.YYYY');
+   document.getElementById("title").textContent = "" + tnow.format('DD.MM.YYYY');
    plotDiv = document.getElementById("plotdiv");
 
    var layout = {
@@ -212,7 +212,7 @@ function incidencePlot(incidenceDataOutput) {
             });
 
             tselected = moment(tnow).add(traces[0].x[this.value], "days");
-            document.getElementById("title").textContent = "Stand: " + tselected.format('DD.MM.YYYY');
+            document.getElementById("title").textContent = "" + tselected.format('DD.MM.YYYY');
 
             plothover(globalgd, null, worldmap, activetraces);
          });
