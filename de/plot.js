@@ -203,6 +203,7 @@ function incidencePlot(incidenceDataOutput) {
             )
          };
 
+         // #####################################################################
          slider = document.getElementById("timeslider");
          slider.addEventListener("input", function() {
             Object.keys(worldmap.options.data).forEach(key => {

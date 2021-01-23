@@ -114,7 +114,7 @@ function getIncidenceDataRKI(data, population) {
       var c = 0;     // cases accumulated
       var c_lw = 0;  // cases 7 days before
 
-      for (var time = tmin; time < tmax; ++time) {
+      for (var time = tmin; time <= tmax; ++time) {
          // current week
          var entry = newcases[time];
          var nc = typeof (entry) == "undefined" ? 0 : entry.num;
