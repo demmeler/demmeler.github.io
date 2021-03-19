@@ -4,10 +4,22 @@ const child_process = require('child_process');
 const _ = require('lodash');
 const moment = require('moment');
 
+function blockBegin(name)
+{
+   console.log('#######################################################################');
+   console.log(name);
+   console.log('#######################################################################');
+   console.log('');
+}
+
+
+blockBegin('Load RKI_COVID19.csv ...');
+
 // Todo: schnellere downloadmethode??
 child_process.exec('wget -O RKI_COVID19.csv https://opendata.arcgis.com/datasets/dd4580c810204019a7b8eb3e0b329dd6_0.csv')
 .on('close', (code) => {
-   console.log("RKI_COVID19.csv loaded");
+
+blockBegin('Parse RKI_COVID19.csv');
 
 var data = [];
 
@@ -17,8 +29,10 @@ fs.createReadStream('RKI_COVID19.csv')
       data.push(row);
    })
    .on('end', () => {
-      console.log('RKI_COVID19.csv parsed.');
+
       console.log(data[0]);
+
+      console.log('Parse kreise.csv');
 
       var kreise = [];
       fs.createReadStream('../de/kreise.csv')
@@ -28,21 +42,22 @@ fs.createReadStream('RKI_COVID19.csv')
             kreise.push(row);
          })
          .on('end', () => {
-            console.log('kreise.csv parsed.');
             console.log(kreise[0]);
+
+            blockBegin('Calculate incidence data');
 
             var populationData = getPopulationData(kreise);
             var incidenceDataOutput = getIncidenceDataRKI(data, populationData);
 
-            console.log('Incidence date generated.');
-            console.log(incidenceDataOutput.incidenceData[0]);
+            console.log('Incidence data parsed.');
+            console.log(incidenceDataOutput.incidenceData['01001']);
 
+            blockBegin('Store data...');
             storeData(incidenceDataOutput, 'incidenceData.json');
+            console.log('Done.');
          });
    });
-
 });
-
 
 // ###############################################################################################################
 // Incidence data generation
@@ -55,7 +70,7 @@ function getIncidenceDataRKI(data, population) {
    var tmin = 0;
    var tmax = -1000;
 
-   console.log('Iterate over RKI rows ...')
+   console.log('Calc time boundaries...')
 
    data.forEach(function (row) {
       var tdata = moment(row.Meldedatum, "YYYY/MM/DD hh:mm");
@@ -67,8 +82,10 @@ function getIncidenceDataRKI(data, population) {
 
    console.log('Data from day ' + tmin + ' to day ' + tmax + '.');
 
-   var grouped = _.mapValues(_.groupBy(data, 'IdLandkreis'),
-      clist => clist.map(d => _.omit(d, 'IdLandkreis')));
+   console.log('Group case list...');
+   var grouped = _.groupBy(data, 'IdLandkreis');
+
+   console.log('Calc incidence graphs...');
 
    var incidenceData = {};
 
