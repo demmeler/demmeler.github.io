@@ -4,60 +4,77 @@ const child_process = require('child_process');
 const _ = require('lodash');
 const moment = require('moment');
 
+downloadRKI();
+
 function blockBegin(name)
 {
+   console.log('');
    console.log('#######################################################################');
    console.log(name);
    console.log('#######################################################################');
    console.log('');
 }
 
+function downloadRKI()
+{
+   blockBegin('Load RKI_COVID19.csv ...');
 
-blockBegin('Load RKI_COVID19.csv ...');
-
-// Todo: schnellere downloadmethode??
-child_process.exec('wget -O RKI_COVID19.csv https://opendata.arcgis.com/datasets/dd4580c810204019a7b8eb3e0b329dd6_0.csv')
-.on('close', (code) => {
-
-blockBegin('Parse RKI_COVID19.csv');
+   child_process.exec('wget -O RKI_COVID19.csv https://opendata.arcgis.com/datasets/dd4580c810204019a7b8eb3e0b329dd6_0.csv')
+   .on('close', (code) => {
+      console.log('Done.');
+      parseRKI();
+   });
+}
 
 var data = [];
 
-fs.createReadStream('RKI_COVID19.csv')
-   .pipe(csv())
-   .on('data', (row) => {
-      data.push(row);
-   })
-   .on('end', () => {
+function parseRKI()
+{
+   blockBegin('Parse RKI_COVID19.csv');
 
-      console.log(data[0]);
+   fs.createReadStream('RKI_COVID19.csv')
+      .pipe(csv())
+      .on('data', (row) => {
+         data.push(row);
+      })
+      .on('end', () => {
+         console.log(data[0]);
+         parseKreise();
+      });
+}
 
-      console.log('Parse kreise.csv');
+var kreise = [];
 
-      var kreise = [];
-      fs.createReadStream('../de/kreise.csv')
-         .pipe(csv())
-         .on('data', (row) => {
-            row.Insgesamt = row.Insgesamt.replace(/\s/g, '');
-            kreise.push(row);
-         })
-         .on('end', () => {
-            console.log(kreise[0]);
+function parseKreise()
+{
+   blockBegin('Parse kreise.csv');
 
-            blockBegin('Calculate incidence data');
+   fs.createReadStream('../de/kreise.csv')
+      .pipe(csv())
+      .on('data', (row) => {
+         row.Insgesamt = row.Insgesamt.replace(/\s/g, '');
+         kreise.push(row);
+      })
+      .on('end', () => {
+         console.log(kreise[0]);
+         processData()
+      });
+}
 
-            var populationData = getPopulationData(kreise);
-            var incidenceDataOutput = getIncidenceDataRKI(data, populationData);
+function processData()
+{
+   blockBegin('Calculate incidence data');
 
-            console.log('Incidence data parsed.');
-            console.log(incidenceDataOutput.incidenceData['01001']);
+   var populationData = getPopulationData(kreise);
+   var incidenceDataOutput = getIncidenceDataRKI(data, populationData);
 
-            blockBegin('Store data...');
-            storeData(incidenceDataOutput, 'incidenceData.json');
-            console.log('Done.');
-         });
-   });
-});
+   console.log('Incidence data parsed.');
+   console.log(incidenceDataOutput.incidenceData['01001']);
+
+   blockBegin('Store data...');
+   storeData(incidenceDataOutput, 'incidenceData.json');
+   console.log('Done.');
+}
 
 // ###############################################################################################################
 // Incidence data generation
