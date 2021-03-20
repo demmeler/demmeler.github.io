@@ -8,6 +8,11 @@ var incidencedataurl = "https://raw.githubusercontent.com/demmeler/demmeler.gith
 
 var incidenceDataGlob
 
+function scrollToTop() {
+   document.body.scrollTop = 0; // For Safari
+   document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+ }
+
 function covplot() {
    $.getJSON(incidencedataurl, incidenceDataOutput => {
       incidenceDataGlob = incidenceDataOutput;
@@ -15,12 +20,14 @@ function covplot() {
    });
 }
 
+var tableGlob
+var worldmapGlob
+
 // ###############################################################################################################
 // Plot
 
 // output: {traces, mapdata, mapcolors}
-function getPlotData(incidenceData)
-{
+function getPlotData(incidenceData) {
    var traces = [];
    var mapcolors = {};
    var mapdata = {};
@@ -67,7 +74,7 @@ function getPlotData(incidenceData)
       }
    });
 
-   return {traces, mapdata, mapcolors};
+   return { traces, mapdata, mapcolors };
 }
 
 // input: incidenceDataOutput = {tnow, incidenceData}
@@ -76,11 +83,16 @@ function incidencePlot(incidenceDataOutput) {
    var plotdata = getPlotData(incidenceDataOutput.incidenceData);
    var traces = plotdata.traces;
 
-   document.getElementById("title").textContent = "" + tnow.format('DD.MM.YYYY');
+   var titleprefix = "Covid-19 Incidences - ";
+
+   document.getElementById("title").textContent = titleprefix + tnow.format('DD.MM.YYYY');
    plotDiv = document.getElementById("plotdiv");
 
    var layout = {
-      title: 'Covid-19 incidence',
+      margin: {
+         t: 50,
+         pad: 4
+      },
       xaxis: {
          title: 'Days (0 = ' + tnow.format('DD.MM.YYYY') + ')',
          showgrid: false,
@@ -112,9 +124,11 @@ function incidencePlot(incidenceDataOutput) {
    var activetraces = [];
    var globalgd;
 
-   Plotly.newPlot(plotDiv, activetraces, layout, {staticPlot: true}).then(gd => {globalgd = gd;});
+   Plotly.newPlot(plotDiv, activetraces, layout, { staticPlot: true }).then(gd => { globalgd = gd; });
 
    // ########################################################################
+
+   var worldmapClick
 
    var worldmap = new Datamap({
       element: document.getElementById('map'),
@@ -127,7 +141,7 @@ function incidencePlot(incidenceDataOutput) {
          var projection = d3.geo.equirectangular()
             .center([10.5, 51.0])
             //.rotate([4, 0])
-            .scale(3800*(element.offsetHeight/600))
+            .scale(3800 * (element.offsetHeight / 600))
             .translate([element.offsetWidth / 2, element.offsetHeight / 2]);
          var path = d3.geo.path().projection(projection);
 
@@ -145,8 +159,8 @@ function incidencePlot(incidenceDataOutput) {
                plothover(globalgd, geo.id, worldmap, activetraces);
             }
 
-            return ['<div class="hoverinfo"><strong>', geo.properties.name,'</strong><br>',
-               worldmap.options.data[geo.id].last_incidence , ' pro 100k</div>'].join('');
+            return ['<div class="hoverinfo"><strong>', geo.properties.name, '</strong><br>',
+               worldmap.options.data[geo.id].last_incidence, ' pro 100k</div>'].join('');
          }
       },
       data: plotdata.mapdata,
@@ -154,7 +168,7 @@ function incidencePlot(incidenceDataOutput) {
       // ########################################################################
       done: function (datamap) {
          // #####################################################################
-         datamap.svg.selectAll('.datamaps-subunit').on('click', function (geo) {
+         worldmapClick = function (geo) {
             if (false == worldmap.options.data.hasOwnProperty(geo.id)) {
                return;
             }
@@ -169,7 +183,7 @@ function incidencePlot(incidenceDataOutput) {
                }
             });
 
-            Plotly.newPlot(plotDiv, activetraces, layout, {staticPlot: true}).then(
+            Plotly.newPlot(plotDiv, activetraces, layout, { staticPlot: true }).then(
                gd => {
                   globalgd = gd;
                   gd.on('plotly_hover', function (data) {
@@ -180,7 +194,9 @@ function incidencePlot(incidenceDataOutput) {
                   plothover(gd, geo.id, worldmap, activetraces);
                }
             )
-         });
+         }
+
+         datamap.svg.selectAll('.datamaps-subunit').on('click', worldmapClick);
 
          // #####################################################################
          document.getElementById("resetbutton").onclick = function (evt) {
@@ -190,7 +206,7 @@ function incidencePlot(incidenceDataOutput) {
 
             activetraces = [];
 
-            Plotly.newPlot(plotDiv, activetraces, layout, {staticPlot: true}).then(
+            Plotly.newPlot(plotDiv, activetraces, layout, { staticPlot: true }).then(
                gd => {
                   globalgd = gd;
                   gd.on('plotly_hover', function (data) {
@@ -205,15 +221,15 @@ function incidencePlot(incidenceDataOutput) {
 
          // #####################################################################
          slider = document.getElementById("timeslider");
-         slider.addEventListener("input", function() {
+         slider.addEventListener("input", function () {
             Object.keys(worldmap.options.data).forEach(key => {
                data = worldmap.options.data[key];
                data.color = data.colors[this.value];
                data.last_incidence = data.trace.y[this.value].toFixed(0);
             });
 
-            tselected = moment(tnow).add(traces[0].x[this.value], "days");
-            document.getElementById("title").textContent = "" + tselected.format('DD.MM.YYYY');
+            tselected = moment(tnow).add(traces[0].x[this.value] + 1, "days");
+            document.getElementById("title").textContent = titleprefix + tselected.format('DD.MM.YYYY');
 
             plothover(globalgd, null, worldmap, activetraces);
          });
@@ -225,6 +241,81 @@ function incidencePlot(incidenceDataOutput) {
          worldmap.updateChoropleth(plotdata.mapcolors);
       }
    });
+
+   worldmapGlob = worldmap;
+
+   function addTable(incidenceDataOutput) {
+      var myTableDiv = document.getElementById("incidencetable");
+
+      var table = document.createElement('TABLE');
+      table.border = '1';
+
+      var tableBody = document.createElement('TBODY');
+      table.appendChild(tableBody);
+
+      // Heading
+      {
+         var tr = document.createElement('TR');
+         tableBody.appendChild(tr);
+
+         {
+            var td = document.createElement('TD');
+            td.appendChild(document.createTextNode("Region"));
+            tr.appendChild(td);
+         }
+         {
+            var td = document.createElement('TD');
+            td.appendChild(document.createTextNode("Incidence"));
+            td.float = 'right';
+            tr.appendChild(td);
+         }
+      }
+
+      // Entries
+      var incidenceData = incidenceDataOutput.incidenceData;
+      var incidenceList = [];
+
+      Object.keys(incidenceData).forEach(key => {
+         var ele = incidenceData[key];
+         var trace = ele.trace.incidence;
+         ele.last_incidence = trace[trace.length - 1];
+         incidenceList.push(incidenceData[key]);
+      });
+
+      incidenceList.sort((a, b) => {
+         return b.last_incidence - a.last_incidence;
+      });
+
+      incidenceList.forEach(element => {
+         var tr = document.createElement('TR');
+         tableBody.appendChild(tr);
+
+         {
+            var td = document.createElement('TD');
+            td.appendChild(document.createTextNode(element.Name));
+            tr.appendChild(td);
+         }
+         {
+            var td = document.createElement('TD');
+            var vals = element.trace.incidence;
+            td.appendChild(document.createTextNode(vals[vals.length - 1].toFixed(0)));
+            td.align = 'right';
+            tr.appendChild(td);
+         }
+
+         tr.onclick = () => {
+            scrollToTop();
+            worldmapClick({id: region2str(element.IdLandkreis)});
+         };
+      });
+
+      tableGlob = table;
+      table.style.borderCollapse='collapse';
+
+      myTableDiv.appendChild(table);
+   }
+
+   addTable(incidenceDataOutput);
 };
 
 function plothover(gd, region, worldmap, activetraces) {
@@ -242,13 +333,11 @@ function plothover(gd, region, worldmap, activetraces) {
    activetraces.forEach(function (trace) {
       var treg = trace.region;
       var original = geoupdate[treg];
-      if (treg == region)
-      {
+      if (treg == region) {
          geoupdate[region] = highlightColor(original, 'blue', 100);
          flashing = true;
       }
-      else
-      {
+      else {
          geoupdate[treg] = highlightColor(original, 'blue', 75);
       }
    });
@@ -274,8 +363,7 @@ function region2str(region) {
    return "r_" + region;
 }
 
-function valToColor(val)
-{
+function valToColor(val) {
    var paletteScale1 = d3.scale.linear()
       .domain([0, 50])
       .range(['green', 'yellow']);
@@ -292,25 +380,21 @@ function valToColor(val)
       .domain([300, 2000])
       .range(['#ff00ff', 'black'])
 
-   if (val < 50)
-   {
+   if (val < 50) {
       return paletteScale1(val);
    }
-   else if (val < 100)
-   {
+   else if (val < 100) {
       return paletteScale2(val);
    }
-   else if (val < 300)
-   {
+   else if (val < 300) {
       return paletteScale3(val);
    }
-   else{
+   else {
       return paletteScale4(val);
    }
 }
 
-function highlightColor(color, color2, percent)
-{
+function highlightColor(color, color2, percent) {
    var paletteScale = d3.scale.linear()
       .domain([0, 100])
       .range([color, color2]);
