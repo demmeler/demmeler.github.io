@@ -262,7 +262,9 @@ function incidencePlot(incidenceData, prognose) {
       },
       geographyConfig: {
          borderWidth: 0.5,
-         highlightOnHover: false,
+         highlightOnHover: true,
+         highlightBorderColor: 'rgba(0, 0, 0, 1)',
+         highlightBorderWidth: 0.5,
          popupOnHover: true,
          popupTemplate: function (geo, data) {
             if (true == worldmap.options.data.hasOwnProperty(geo.id)) {
@@ -303,19 +305,6 @@ function plothover(gd, iso3, worldmap, activetraces) {
       }
    });
 
-   /*
-   activetraces.forEach(function (trace) {
-   geoupdate[trace.country.iso3] = 'blue';
-   });
-
-   var flashing = false;
-   if (iso3 != null) {
-      if (geoupdate[iso3] == 'blue') {
-         geoupdate[iso3] = 'yellow';
-         flashing = true;
-      }
-   }*/
-
    worldmap.updateChoropleth(geoupdate);
 
    // Highlight trace
@@ -324,7 +313,7 @@ function plothover(gd, iso3, worldmap, activetraces) {
       minop = 0.5;
    }
    var update = {
-      'line.width': gd.data.map((_, i) => (gd.data[i].country.iso3 == iso3) ? 1.2 : 1),
+      'line.width': gd.data.map((_, i) => (gd.data[i].country.iso3 == iso3) ? 1.6 : 1),
       'opacity': gd.data.map((_, i) => (gd.data[i].country.iso3 == iso3) ? 1 : minop)
    };
    Plotly.restyle(gd, update);

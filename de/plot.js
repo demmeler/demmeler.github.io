@@ -261,7 +261,7 @@ function plothover(gd, region, worldmap, activetraces) {
       minop = 0.5;
    }
    var update = {
-      'line.width': gd.data.map((_, i) => (gd.data[i].region == region) ? 1.2 : 1),
+      'line.width': gd.data.map((_, i) => (gd.data[i].region == region) ? 1.6 : 1),
       'opacity': gd.data.map((_, i) => (gd.data[i].region == region) ? 1 : minop)
    };
    Plotly.restyle(gd, update);
