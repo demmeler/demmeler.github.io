@@ -102,7 +102,8 @@ function incidencePlot(incidenceDataOutput) {
       yaxis: {
          title: 'Weekly new cases per 100k',
          showline: false,
-         fixedrange: true
+         fixedrange: true,
+         type: "log"
       },
       hovermode: 'closest',
       shapes: [{
