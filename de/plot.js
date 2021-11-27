@@ -71,6 +71,29 @@ function getPlotData(incidenceData) {
             trace: trace
          };
          mapcolors[region2str(region)] = mapdata[region2str(region)].color;
+
+         trace.heatmap = [{
+            type: 'heatmap',
+            x: days,
+            y: [],
+            z: [],
+            zmin: 0.0,
+            zmax: 2000.0,
+            colorscale: [
+               [0.0/2000.0,    valToColor(0.0)],
+               [50.0/2000.0,   valToColor(50.0)],
+               [100.0/2000.0,  valToColor(100.0)],
+               [300.0/2000.0,  valToColor(300.0)],
+               [2000.0/2000.0, valToColor(2000.0)],
+            ]
+         }];
+
+         incidence_by_age = dataRow.trace.incidence_by_age
+
+         Object.keys(incidence_by_age).forEach(agegroup => {
+            trace.heatmap[0].y.push(agegroup)
+            trace.heatmap[0].z.push(incidence_by_age[agegroup])
+         });
       }
    });
 
@@ -87,8 +110,10 @@ function incidencePlot(incidenceDataOutput) {
 
    document.getElementById("title").textContent = titleprefix + tnow.format('DD.MM.YYYY');
    plotDiv = document.getElementById("plotdiv");
+   heatmapDiv = document.getElementById("heatmapdiv")
 
    var layout = {
+      title: 'Incidences',
       margin: {
          t: 50,
          pad: 4
@@ -122,10 +147,23 @@ function incidencePlot(incidenceDataOutput) {
       showlegend: true
    };
 
+   var layoutheatmap = {
+      title: 'Incidences by age group',
+      xaxis: {
+         title: 'Days (0 = ' + tnow.format('DD.MM.YYYY') + ')'
+      }
+   };
+
+   var activeheatmap = [{
+      z: [],
+      type: 'heatmap'
+   }];
+
    var activetraces = [];
    var globalgd;
 
    Plotly.newPlot(plotDiv, activetraces, layout, { staticPlot: true }).then(gd => { globalgd = gd; });
+   Plotly.newPlot(heatmapDiv, activeheatmap, layoutheatmap)
 
    // ########################################################################
 
@@ -195,6 +233,12 @@ function incidencePlot(incidenceDataOutput) {
                   plothover(gd, geo.id, worldmap, activetraces);
                }
             )
+
+            if (data.trace.active){
+               activeheatmap = data.trace.heatmap
+               layoutheatmap.title = 'Incidences by age group (' + data.trace.name + ')'
+               Plotly.newPlot(heatmapDiv, activeheatmap, layoutheatmap)
+            }
          }
 
          datamap.svg.selectAll('.datamaps-subunit').on('click', worldmapClick);
