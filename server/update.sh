@@ -1,4 +1,6 @@
 
+set -e
+
 python3 update.py
 
 git add incidenceData.json

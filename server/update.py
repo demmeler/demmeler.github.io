@@ -12,9 +12,9 @@ def readRKI():
       "Refdatum" : str,
    })
 
-   rki_csv.Datenstand = pd.to_datetime(rki_csv.Datenstand,  format='%d.%m.%Y, %H:%M Uhr')
-   rki_csv.Meldedatum = pd.to_datetime(rki_csv.Meldedatum,  format='%Y/%m/%d %H:%M:%S')
-   rki_csv.Refdatum =   pd.to_datetime(rki_csv.Refdatum,    format='%Y/%m/%d %H:%M:%S')
+   rki_csv.Datenstand = pd.to_datetime(rki_csv.Datenstand,  format='%d.%m.%Y, %H:%M Uhr').dt.tz_localize(None)
+   rki_csv.Meldedatum = pd.to_datetime(rki_csv.Meldedatum,  format='%Y/%m/%d %H:%M:%S').dt.tz_localize(None)
+   rki_csv.Refdatum =   pd.to_datetime(rki_csv.Refdatum,    format='%Y/%m/%d %H:%M:%S').dt.tz_localize(None)
 
    return rki_csv
 
@@ -90,11 +90,15 @@ def calcIncidenceData(rki_csv : pd.DataFrame, kreise_csv : pd.DataFrame):
 
    return { "incidenceData": incidenceData, "tnow": today.strftime('%Y-%m-%dT%H:%M:%S.000Z') }
 
+def downlaodRKI():
+   if os.path.exists('RKI_COVID19.csv'):
+      print('RKI_COVID19.csv already exists.')
+   else:
+      print('Download RKI_COVID19.csv ...')
+      os.system('wget -O RKI_COVID19.csv https://opendata.arcgis.com/datasets/dd4580c810204019a7b8eb3e0b329dd6_0.csv')
 
 def main():
-   print('Download RKI_COVID19.csv ...')
-   os.system('wget -O RKI_COVID19.csv https://opendata.arcgis.com/datasets/dd4580c810204019a7b8eb3e0b329dd6_0.csv')
-
+   downlaodRKI()
    rki_csv = readRKI()
    kreise_csv = readKreise()
    incidenceData = calcIncidenceData(rki_csv, kreise_csv)

@@ -13,7 +13,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: build nodedev
+    - name: build container
       run: bash container/python/create.sh
     - name: build
       run: bash server/start_update.sh
