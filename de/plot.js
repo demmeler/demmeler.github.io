@@ -196,6 +196,10 @@ function incidencePlot(incidenceDataOutput) {
          popupTemplate: function (geo, data) {
             if (true == worldmap.options.data.hasOwnProperty(geo.id)) {
                plothover(globalgd, geo.id, worldmap, activetraces);
+
+               // For fast heatmap hover ...
+               // layoutheatmap.title = 'Incidences by age group (' + data.trace.name + ')'
+               // Plotly.newPlot(heatmapDiv, data.trace.heatmap, layoutheatmap)
             }
 
             return ['<div class="hoverinfo"><strong>', geo.properties.name, '</strong><br>',
@@ -235,9 +239,8 @@ function incidencePlot(incidenceDataOutput) {
             )
 
             if (data.trace.active){
-               activeheatmap = data.trace.heatmap
                layoutheatmap.title = 'Incidences by age group (' + data.trace.name + ')'
-               Plotly.newPlot(heatmapDiv, activeheatmap, layoutheatmap)
+               Plotly.newPlot(heatmapDiv, data.trace.heatmap, layoutheatmap)
             }
          }
 
