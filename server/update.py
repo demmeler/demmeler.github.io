@@ -98,8 +98,8 @@ def downlaodRKI():
       print('RKI_COVID19.csv already exists.')
    else:
       print('Download RKI_COVID19.csv ...')
-      os.system('wget -O RKI_COVID19.csv https://opendata.arcgis.com/datasets/dd4580c810204019a7b8eb3e0b329dd6_0.csv')
-
+      #os.system('wget -O RKI_COVID19.csv https://opendata.arcgis.com/datasets/dd4580c810204019a7b8eb3e0b329dd6_0.csv')
+      os.system('wget -O RKI_COVID19.csv https://ago-item-storage.s3.us-east-1.amazonaws.com/f10774f1c63e40168479a1feb6c7ca74/RKI_COVID19.csv')
 def saveIncidenceData(incidenceData : dict):
    print('Save incidence data to incidenceData.json')
    with open('incidenceData.json', 'w') as f:
