@@ -102,7 +102,7 @@ def downlaodRKI():
 
 def saveIncidenceData(incidenceData : dict):
    print('Save incidence data to incidenceData.json')
-   with open('incidenceData0.json', 'w') as f:
+   with open('incidenceData.json', 'w') as f:
       json.dump(incidenceData, f)
 
 
