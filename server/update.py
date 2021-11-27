@@ -61,10 +61,8 @@ def calcIncidenceData(rki_csv : pd.DataFrame, kreise_csv : pd.DataFrame):
       if lk_id in kreise_csv.index:
          population_number = kreise_csv.loc[lk_id].Insgesamt
 
-         incidenceData[lk_id]['population'] = {
-            'incidence_available' : True,
-            'population' : int(population_number)
-         }
+         incidenceData[lk_id]['population'] = int(population_number)
+         incidenceData[lk_id]['incidence_available'] = True
 
          # newcases
          newcases = [0] * num_days
