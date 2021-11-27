@@ -6,7 +6,7 @@ from tqdm import tqdm
 def readRKI():
    print('Load RKI_COVID19.csv ...')
 
-   rki_csv = pd.read_csv('RKI_COVID19.csv', index_col='FID', dtype = {
+   rki_csv = pd.read_csv('RKI_COVID19.csv', dtype = {
       "Datenstand" : str,
       "Meldedatum" : str,
       "Refdatum" : str,
