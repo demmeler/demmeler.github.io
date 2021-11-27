@@ -361,7 +361,7 @@ function plothover(gd, region, worldmap, activetraces) {
 // Utility
 
 function region2str(region) {
-   return "r_" + region;
+   return "r_" + String(region).padStart(5, "0");
 }
 
 function valToColor(val) {
