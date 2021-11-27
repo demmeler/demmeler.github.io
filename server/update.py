@@ -7,6 +7,7 @@ def readRKI():
    print('Load RKI_COVID19.csv ...')
 
    rki_csv = pd.read_csv('RKI_COVID19.csv', dtype = {
+      "IdLandkreis" : str,
       "Datenstand" : str,
       "Meldedatum" : str,
       "Refdatum" : str,
@@ -22,6 +23,7 @@ def readKreise():
    print('Load kreise.csv ...')
 
    kreise_csv = pd.read_csv('../de/kreise.csv', index_col='Nummer', dtype={
+      'Nummer' : str,
       'Insgesamt' : int,
    }, thousands=' ')
 
