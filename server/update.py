@@ -29,6 +29,37 @@ def readKreise():
 
    return kreise_csv
 
+def readDemography():
+   print('Load demografie.csv ...')
+
+   demography_csv = pd.read_csv('../de/demografie.csv', sep=';')\
+      .set_index(['Variante', 'Simulationsjahr', 'mw']).loc[1, 2021].sum()
+
+   agegroups = {
+      'A00-A04': {'min':  0, 'max':  4, 'population_proportion': 0.0},
+      'A05-A14': {'min':  5, 'max': 14, 'population_proportion': 0.0},
+      'A15-A34': {'min': 15, 'max': 34, 'population_proportion': 0.0},
+      'A35-A59': {'min': 35, 'max': 59, 'population_proportion': 0.0},
+      'A60-A79': {'min': 60, 'max': 79, 'population_proportion': 0.0},
+      'A80+':    {'min': 80, 'max': 99, 'population_proportion': 0.0},
+   }
+
+   # calculate proportions of age groups of whole population
+   for agegroup in agegroups:
+      entry = agegroups[agegroup]
+      columns = ['Bev_' + str(x) + '_' + str(x+1) for x in range(entry['min'], entry['max']+1)]
+      entry['population_proportion'] = demography_csv[columns].sum() / demography_csv['Bev']
+
+   # consistency check (sum ~ 1.0)
+   sum = 0.0
+   for agegroup in agegroups:
+      entry = agegroups[agegroup]
+      sum += entry['population_proportion']
+
+   assert(abs(sum-1.0)<0.001)
+
+   return agegroups
+
 def calcIncidences(newcases, population_number):
    num_days = len(newcases)
    c = 0     # cases accumulated
@@ -49,7 +80,7 @@ def calcIncidences(newcases, population_number):
 
    return incidences
 
-def calcIncidenceData(rki_csv : pd.DataFrame, kreise_csv : pd.DataFrame):
+def calcIncidenceData(rki_csv : pd.DataFrame, kreise_csv : pd.DataFrame, agegroups : dict):
 
    # calc time axis in dates, 0 = today
    today = rki_csv.iloc[0].Datenstand
@@ -104,7 +135,9 @@ def calcIncidenceData(rki_csv : pd.DataFrame, kreise_csv : pd.DataFrame):
          incidenceData[lk_id]['trace']['incidence'] = calcIncidences(newcases, population_number)
 
          for age, newcases_age in newcases_by_age.items():
-            incidenceData[lk_id]['trace']['incidence_by_age'][age] = calcIncidences(newcases_age, population_number)
+            if age in agegroups:
+               population_number_age = population_number * agegroups[age]['population_proportion']
+               incidenceData[lk_id]['trace']['incidence_by_age'][age] = calcIncidences(newcases_age, population_number_age)
 
    return { "incidenceData": incidenceData, "tnow": today.strftime('%Y-%m-%dT%H:%M:%S.000Z') }
 
@@ -125,7 +158,8 @@ def main():
    downlaodRKI()
    rki_csv = readRKI()
    kreise_csv = readKreise()
-   incidenceData = calcIncidenceData(rki_csv, kreise_csv)
+   agegroups = readDemography()
+   incidenceData = calcIncidenceData(rki_csv, kreise_csv, agegroups)
    saveIncidenceData(incidenceData)
 
 if __name__ == "__main__":
