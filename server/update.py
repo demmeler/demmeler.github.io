@@ -29,6 +29,26 @@ def readKreise():
 
    return kreise_csv
 
+def calcIncidences(newcases, population_number):
+   num_days = len(newcases)
+   c = 0     # cases accumulated
+   c_lw = 0  # cases 7 days before
+
+   incidences = [0.] * num_days
+
+   for timeindex in range(num_days):
+      # current week
+      c += newcases[timeindex]
+
+      # last week
+      if timeindex >= 7:
+         c_lw += newcases[timeindex - 7]
+
+      # trajectories
+      incidences[timeindex] = (c - c_lw) * 100000.0 / population_number
+
+   return incidences
+
 def calcIncidenceData(rki_csv : pd.DataFrame, kreise_csv : pd.DataFrame):
 
    # calc time axis in dates, 0 = today
@@ -54,6 +74,7 @@ def calcIncidenceData(rki_csv : pd.DataFrame, kreise_csv : pd.DataFrame):
          "trace": {
             "times": [time for time in range(dmin, dmax + 1)],
             "incidence": None,
+            "incidence_by_age": {}
          },
          "incidence_available": False,
          "population": None
@@ -71,25 +92,19 @@ def calcIncidenceData(rki_csv : pd.DataFrame, kreise_csv : pd.DataFrame):
          for time, nc in lk_csv.groupby('t').AnzahlFall.sum().items():
             newcases[time - dmin] = nc
 
+         # newcases by age
+         newcases_by_age = {}
+         for age, lk_age_csv in lk_csv.groupby('Altersgruppe'):
+            newcases_age = [0] * num_days
+            for time, nc in lk_age_csv.groupby('t').AnzahlFall.sum().items():
+               newcases_age[time - dmin] = nc
+            newcases_by_age[age] = newcases_age
+
          # trace
-         c = 0     # cases accumulated
-         c_lw = 0  # cases 7 days before
+         incidenceData[lk_id]['trace']['incidence'] = calcIncidences(newcases, population_number)
 
-         incidences = [0.] * num_days
-
-         for time in range(dmin, dmax + 1):
-            timeindex = time - dmin
-            # current week
-            c += newcases[timeindex]
-
-            # last week
-            if timeindex >= 7:
-               c_lw += newcases[timeindex - 7]
-
-            # trajectories
-            incidences[timeindex] = (c - c_lw) * 100000.0 / population_number
-
-         incidenceData[lk_id]['trace']['incidence'] = incidences
+         for age, newcases_age in newcases_by_age.items():
+            incidenceData[lk_id]['trace']['incidence_by_age'][age] = calcIncidences(newcases_age, population_number)
 
    return { "incidenceData": incidenceData, "tnow": today.strftime('%Y-%m-%dT%H:%M:%S.000Z') }
 
