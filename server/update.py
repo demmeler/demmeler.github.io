@@ -32,38 +32,32 @@ def calcIncidenceData(rki_csv : pd.DataFrame, kreise_csv : pd.DataFrame):
    # calc time axis in dates, 0 = today
    today = rki_csv.iloc[0].Datenstand
    rki_csv['t'] = (rki_csv.Meldedatum - today).dt.days
-   dmin = rki_csv['t'].min()
-   dmax = rki_csv['t'].max()
-   num_days = dmax - dmin + 1
-   times = [time for time in range(dmin, dmax + 1)]
+   dmin_glob = rki_csv['t'].min()
+   dmax_glob = rki_csv['t'].max()
 
    print('today: ', today)
-   print('Data from day', dmin, 'to', dmax)
+   print('Data from day', dmin_glob, 'to', dmax_glob)
    print('Process by IdLandkreis ...')
 
    incidenceData = {}
 
    for lk_id, lk_csv in tqdm(rki_csv.groupby('IdLandkreis')):
+      dmin = lk_csv['t'].min()
+      dmax = lk_csv['t'].max()
+      num_days = dmax - dmin + 1
+
       incidenceData[lk_id] = {
          "IdLandkreis": lk_id,
          "Name": lk_csv.iloc[0].Landkreis,
          "trace": {
-            "times": times,
-            "incidence": [0] * num_days,
+            "times": [time for time in range(dmin, dmax + 1)],
+            "incidence": None,
          },
          "incidence_available": False,
          "population": None
       }
 
-      # newcases
-      newcases = [0] * num_days
-
-      for row in lk_csv.iloc:
-         num = row.AnzahlFall
-         newcases[row.t - dmin] += num
-
       # population
-      # incidence_available
       if lk_id in kreise_csv.index:
          population_number = kreise_csv.loc[lk_id].Insgesamt
 
@@ -72,9 +66,16 @@ def calcIncidenceData(rki_csv : pd.DataFrame, kreise_csv : pd.DataFrame):
             'population' : int(population_number)
          }
 
+         # newcases
+         newcases = [0] * num_days
+         for time, nc in lk_csv.groupby('t').AnzahlFall.sum().items():
+            newcases[time - dmin] = nc
+
          # trace
          c = 0     # cases accumulated
          c_lw = 0  # cases 7 days before
+
+         incidences = [0.] * num_days
 
          for time in range(dmin, dmax + 1):
             timeindex = time - dmin
@@ -82,11 +83,13 @@ def calcIncidenceData(rki_csv : pd.DataFrame, kreise_csv : pd.DataFrame):
             c += newcases[timeindex]
 
             # last week
-            if timeindex >= 0:
-               c_lw += newcases[timeindex]
+            if timeindex >= 7:
+               c_lw += newcases[timeindex - 7]
 
             # trajectories
-            incidenceData[lk_id]['trace']['incidence'][timeindex] = (c - c_lw) * 100000.0 / population_number
+            incidences[timeindex] = (c - c_lw) * 100000.0 / population_number
+
+         incidenceData[lk_id]['trace']['incidence'] = incidences
 
    return { "incidenceData": incidenceData, "tnow": today.strftime('%Y-%m-%dT%H:%M:%S.000Z') }
 
@@ -97,14 +100,18 @@ def downlaodRKI():
       print('Download RKI_COVID19.csv ...')
       os.system('wget -O RKI_COVID19.csv https://opendata.arcgis.com/datasets/dd4580c810204019a7b8eb3e0b329dd6_0.csv')
 
+def saveIncidenceData(incidenceData : dict):
+   print('Save incidence data to incidenceData.json')
+   with open('incidenceData0.json', 'w') as f:
+      json.dump(incidenceData, f)
+
+
 def main():
    downlaodRKI()
    rki_csv = readRKI()
    kreise_csv = readKreise()
    incidenceData = calcIncidenceData(rki_csv, kreise_csv)
-
-   with open('data.json', 'w') as f:
-      json.dump(incidenceData, f)
+   saveIncidenceData(incidenceData)
 
 if __name__ == "__main__":
    main()
