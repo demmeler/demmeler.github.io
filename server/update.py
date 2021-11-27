@@ -103,7 +103,8 @@ def calcIncidenceData(rki_csv : pd.DataFrame, kreise_csv : pd.DataFrame, agegrou
          "IdLandkreis": lk_id,
          "Name": lk_csv.iloc[0].Landkreis,
          "trace": {
-            "times": [time for time in range(dmin, dmax + 1)],
+            "times": [day for day in range(dmin, dmax + 1)],
+            "days_formatted": [(today + pd.DateOffset(day)).strftime('%Y-%m-%d') for day in range(dmin, dmax + 1)],
             "incidence": None,
             "incidence_by_age": {}
          },
