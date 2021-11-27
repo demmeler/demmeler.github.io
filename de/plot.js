@@ -22,6 +22,7 @@ function covplot() {
 
 var tableGlob
 var worldmapGlob
+var tnowglob
 
 // ###############################################################################################################
 // Plot
@@ -39,7 +40,9 @@ function getPlotData(incidenceData) {
          return;
       }
 
-      var days = dataRow.trace.times;
+      //var days = dataRow.trace.times; //old x axis numbering
+      var days_formatted = dataRow.trace.days_formatted
+
       var incidence = dataRow.trace.incidence;
       var max = Math.max(...incidence);
 
@@ -47,7 +50,7 @@ function getPlotData(incidenceData) {
          traces.push({
             name: dataRow.Name,
             region: region2str(region),
-            x: days,
+            x: days_formatted,
             y: incidence,
             mode: 'lines',
             line: {
@@ -74,7 +77,7 @@ function getPlotData(incidenceData) {
 
          trace.heatmap = [{
             type: 'heatmap',
-            x: days,
+            x: days_formatted,
             y: [],
             z: [],
             zmin: 0.0,
@@ -103,6 +106,7 @@ function getPlotData(incidenceData) {
 // input: incidenceDataOutput = {tnow, incidenceData}
 function incidencePlot(incidenceDataOutput) {
    var tnow = moment(incidenceDataOutput.tnow);
+   tnowglob = tnow
    var plotdata = getPlotData(incidenceDataOutput.incidenceData);
    var traces = plotdata.traces;
 
@@ -119,7 +123,6 @@ function incidencePlot(incidenceDataOutput) {
          pad: 4
       },
       xaxis: {
-         title: 'Days (0 = ' + tnow.format('DD.MM.YYYY') + ')',
          showgrid: false,
          zeroline: false,
          fixedrange: true
@@ -133,9 +136,9 @@ function incidencePlot(incidenceDataOutput) {
       hovermode: 'closest',
       shapes: [{
          type: 'line',
-         x0: 0,
+         x0: tnow.format('YYYY-MM-DD'),
          y0: 0,
-         x1: 0,
+         x1: tnow.format('YYYY-MM-DD'),
          yref: 'paper',
          y1: 1,
          line: {
@@ -148,10 +151,7 @@ function incidencePlot(incidenceDataOutput) {
    };
 
    var layoutheatmap = {
-      title: 'Incidences by age group',
-      xaxis: {
-         title: 'Days (0 = ' + tnow.format('DD.MM.YYYY') + ')'
-      }
+      title: 'Incidences by age group'
    };
 
    var activeheatmap = [{
