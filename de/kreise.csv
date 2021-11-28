@@ -394,10 +394,9 @@ Nummer,Art,Name,NUTS3,Flaeche_km2,Insgesamt,maennlich,weiblich,Einwohner_pro_km2
 16053,Kreisfreie Stadt,Jena - Stadt,DEG03,114.77,111 407,55 665,55 742,971
 16054,Kreisfreie Stadt,Suhl - Stadt,DEG04,103.03,34 835,16 960,17 875,338
 16055,Kreisfreie Stadt,Weimar - Stadt,DEG05,84.48,65 090,31 655,33 435,770
-16056,Kreisfreie Stadt,Eisenach - Stadt,DEG0N,104.17,42 370,20 874,21 496,407
 16061,Landkreis,Eichsfeld,DEG06,943.07,100 380,50 364,50 016,106
 16062,Landkreis,Nordhausen,DEG07,713.90,83 822,41 477,42 345,117
-16063,Landkreis,Wartburgkreis,DEG0P,1307.44,123 025,61 525,61 500,94
+16063,Landkreis,Wartburgkreis,DEG0P,1411.61,165 395,82 399,82 996,117
 16064,Landkreis,Unstrut-Hainich-Kreis,DEG09,979.69,102 912,51 119,51 793,105
 16065,Landkreis,Kyffhäuserkreis,DEG0A,1037.91,75 009,37 274,37 735,72
 16066,Landkreis,Schmalkalden-Meiningen,DEG0B,1210.73,122 347,61 186,61 161,101
