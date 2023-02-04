@@ -11,6 +11,7 @@ fi
 set -x
 set -e
 
+git config --global --add safe.directory /repo
 git add incidenceData.json
 git commit -m "automatic update"
 git push
